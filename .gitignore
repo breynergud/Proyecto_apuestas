@@ -1,0 +1,13 @@
+# Ignorar archivos compilados de Java
+bin/
+*.class
+
+# Ignorar configuraciones locales de editores
+.vscode/
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+nbproject/
+private/
