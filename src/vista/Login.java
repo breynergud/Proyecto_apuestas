@@ -7,12 +7,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 public class Login extends JFrame {
 
-    private JComboBox<String> comboUsuarios;
-    private JTextField txtNuevoUsuario;
+    private JTextField txtCedula;
     private JButton btnIngresar;
     private JButton btnRegistrar;
     private UsuarioControlador usuarioControlador;
@@ -22,7 +20,7 @@ public class Login extends JFrame {
 
         // Configuración básica de ventana
         setTitle("Mundial 2026 - Quiniela");
-        setSize(400, 320);
+        setSize(400, 260); // Ventana adaptada
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -40,35 +38,29 @@ public class Login extends JFrame {
         panelPrincipal.add(lblTitulo, BorderLayout.NORTH);
 
         // Panel Central (Formulario)
-        JPanel panelForm = new JPanel(new GridLayout(4, 1, 8, 8));
+        JPanel panelForm = new JPanel(new GridLayout(3, 1, 8, 8));
         panelForm.setOpaque(false);
 
-        // Selector de usuario existente
-        JLabel lblExistente = new JLabel("Selecciona tu usuario:");
-        lblExistente.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        // Entrada de Cédula
+        JLabel lblExistente = new JLabel("Ingresa tu Cédula / ID:", SwingConstants.CENTER);
+        lblExistente.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblExistente.setForeground(Color.LIGHT_GRAY);
         panelForm.add(lblExistente);
 
-        comboUsuarios = new JComboBox<>();
-        comboUsuarios.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        comboUsuarios.setBackground(new Color(45, 45, 52));
-        comboUsuarios.setForeground(Color.WHITE);
-        cargarUsuariosExistentes();
-        panelForm.add(comboUsuarios);
+        txtCedula = new JTextField();
+        txtCedula.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtCedula.setHorizontalAlignment(JTextField.CENTER);
+        txtCedula.setBackground(new Color(45, 45, 52));
+        txtCedula.setForeground(Color.WHITE);
+        txtCedula.setCaretColor(Color.WHITE);
+        txtCedula.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 1));
+        panelForm.add(txtCedula);
 
-        // Entrada de nuevo usuario
-        JLabel lblNuevo = new JLabel("O ingresa un nuevo nombre:");
-        lblNuevo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblNuevo.setForeground(Color.LIGHT_GRAY);
-        panelForm.add(lblNuevo);
-
-        txtNuevoUsuario = new JTextField();
-        txtNuevoUsuario.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNuevoUsuario.setBackground(new Color(45, 45, 52));
-        txtNuevoUsuario.setForeground(Color.WHITE);
-        txtNuevoUsuario.setCaretColor(Color.WHITE);
-        txtNuevoUsuario.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 1));
-        panelForm.add(txtNuevoUsuario);
+        // Indicación rápida
+        JLabel lblTip = new JLabel("(Admin: 12345 | Usuario: 1)", SwingConstants.CENTER);
+        lblTip.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        lblTip.setForeground(Color.GRAY);
+        panelForm.add(lblTip);
 
         panelPrincipal.add(panelForm, BorderLayout.CENTER);
 
@@ -85,8 +77,8 @@ public class Login extends JFrame {
         btnIngresar.addActionListener(this::accionIngresar);
         panelBotones.add(btnIngresar);
 
-        btnRegistrar = new JButton("Registrar y Entrar");
-        btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnRegistrar = new JButton("Registrarse");
+        btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnRegistrar.setBackground(new Color(52, 152, 219)); // Azul brillante
         btnRegistrar.setForeground(Color.WHITE);
         btnRegistrar.setFocusPainted(false);
@@ -96,49 +88,52 @@ public class Login extends JFrame {
         panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
     }
 
-    private void cargarUsuariosExistentes() {
-        comboUsuarios.removeAllItems();
-        comboUsuarios.addItem("-- Seleccionar Apostador --");
-        List<Usuario> lista = usuarioControlador.obtenerListaUsuarios();
-        for (Usuario u : lista) {
-            comboUsuarios.addItem(u.getNombre());
-        }
-    }
-
     private void accionIngresar(ActionEvent e) {
-        if (comboUsuarios.getSelectedIndex() <= 0) {
-            JOptionPane.showMessageDialog(this, "Por favor, selecciona un usuario o escribe uno nuevo.", "Atención", JOptionPane.WARNING_MESSAGE);
+        String cedula = txtCedula.getText().trim();
+        if (cedula.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingresa tu cédula.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String nombreSeleccionado = (String) comboUsuarios.getSelectedItem();
-        Usuario usuarioLogueado = null;
-        List<Usuario> lista = usuarioControlador.obtenerListaUsuarios();
-        for (Usuario u : lista) {
-            if (u.getNombre().equals(nombreSeleccionado)) {
-                usuarioLogueado = u;
-                break;
-            }
-        }
-
+        Usuario usuarioLogueado = usuarioControlador.iniciarSesion(cedula);
         if (usuarioLogueado != null) {
             abrirMenuPrincipal(usuarioLogueado);
+        } else {
+            JOptionPane.showMessageDialog(this, "La cédula ingresada no está registrada. Por favor regístrate.", "Usuario No Encontrado", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void accionRegistrar(ActionEvent e) {
-        String nuevoNombre = txtNuevoUsuario.getText().trim();
-        if (nuevoNombre.isEmpty()) {
+        String cedula = txtCedula.getText().trim();
+        if (cedula.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingresa la cédula que deseas registrar en el campo de texto.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Verificar si la cédula ya existe
+        Usuario existente = usuarioControlador.iniciarSesion(cedula);
+        if (existente != null) {
+            JOptionPane.showMessageDialog(this, "Esta cédula ya se encuentra registrada para el usuario: " + existente.getNombre(), "Cédula Duplicada", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Solicitar el nombre del usuario
+        String nombre = JOptionPane.showInputDialog(this, "Ingresa tu Nombre completo para registrarte:", "Registro de Nuevo Apostador", JOptionPane.QUESTION_MESSAGE);
+        if (nombre == null) {
+            return; // Cancelado
+        }
+        nombre = nombre.trim();
+        if (nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "El nombre de usuario no puede estar vacío.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Usuario usuario = usuarioControlador.ingresarORegistrarUsuario(nuevoNombre);
+        Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula);
         if (usuario != null) {
             JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             abrirMenuPrincipal(usuario);
         } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar el usuario o el nombre ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al registrar el usuario. El nombre o la cédula podrían estar duplicados.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

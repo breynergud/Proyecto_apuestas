@@ -47,11 +47,17 @@ CREATE TABLE partidos (
     FOREIGN KEY (visitante_id) REFERENCES equipos(id) ON DELETE CASCADE
 );
 
--- Tabla de apostadores: Únicamente para registrar a las personas
+-- Tabla de apostadores: Registra a las personas (usuarios y administradores)
 CREATE TABLE apostadores (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    cedula VARCHAR(20) NOT NULL UNIQUE,
+    rol VARCHAR(20) NOT NULL DEFAULT 'USUARIO'
 );
+
+-- Insertar administrador por defecto
+INSERT INTO apostadores (nombre, cedula, rol) VALUES ('Admin', '12345', 'ADMINISTRADOR') ON DUPLICATE KEY UPDATE nombre=nombre;
+
 
 -- Tabla de apuestas realizadas por los apostadores (pronósticos)
 CREATE TABLE apuestas (

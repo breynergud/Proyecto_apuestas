@@ -86,8 +86,16 @@ public class MenuPrincipal extends JFrame {
         tabbedPane.setBackground(new Color(38, 38, 45));
         tabbedPane.setForeground(Color.WHITE);
 
-        configurarPestanaPronosticos();
-        configurarPestanaResultados();
+        // Los usuarios normales registran apuestas
+        if (!usuarioLogueado.esAdministrador()) {
+            configurarPestanaPronosticos();
+        }
+        
+        // Solo el administrador puede registrar resultados reales
+        if (usuarioLogueado.esAdministrador()) {
+            configurarPestanaResultados();
+        }
+
         configurarPestanaPosiciones();
         configurarPestanaConsultas();
 

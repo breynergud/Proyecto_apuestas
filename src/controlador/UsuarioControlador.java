@@ -15,11 +15,18 @@ public class UsuarioControlador {
         return usuarioDAO.obtenerTodos();
     }
 
-    public Usuario ingresarORegistrarUsuario(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) {
+    public Usuario iniciarSesion(String cedula) {
+        if (cedula == null || cedula.trim().isEmpty()) {
             return null;
         }
-        return usuarioDAO.registrar(nombre.trim());
+        return usuarioDAO.obtenerPorCedula(cedula.trim());
+    }
+
+    public Usuario registrarUsuario(String nombre, String cedula) {
+        if (nombre == null || nombre.trim().isEmpty() || cedula == null || cedula.trim().isEmpty()) {
+            return null;
+        }
+        return usuarioDAO.registrar(nombre.trim(), cedula.trim());
     }
 
     public List<Object[]> obtenerTablaPosiciones() {
