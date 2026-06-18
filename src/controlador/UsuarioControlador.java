@@ -2,6 +2,7 @@ package controlador;
 
 import dao.UsuarioDAO;
 import modelo.Usuario;
+import util.HashUtil;
 import java.util.List;
 
 public class UsuarioControlador {
@@ -15,18 +16,22 @@ public class UsuarioControlador {
         return usuarioDAO.obtenerTodos();
     }
 
-    public Usuario iniciarSesion(String cedula) {
-        if (cedula == null || cedula.trim().isEmpty()) {
+    public Usuario iniciarSesion(String cedula, String password) {
+        if (cedula == null || cedula.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return null;
         }
-        return usuarioDAO.obtenerPorCedula(cedula.trim());
+        String passwordHash = HashUtil.hashPassword(password.trim());
+        return usuarioDAO.validarIngreso(cedula.trim(), passwordHash);
     }
 
-    public Usuario registrarUsuario(String nombre, String cedula) {
-        if (nombre == null || nombre.trim().isEmpty() || cedula == null || cedula.trim().isEmpty()) {
+    public Usuario registrarUsuario(String nombre, String cedula, String password) {
+        if (nombre == null || nombre.trim().isEmpty() || 
+            cedula == null || cedula.trim().isEmpty() || 
+            password == null || password.trim().isEmpty()) {
             return null;
         }
-        return usuarioDAO.registrar(nombre.trim(), cedula.trim());
+        String passwordHash = HashUtil.hashPassword(password.trim());
+        return usuarioDAO.registrar(nombre.trim(), cedula.trim(), passwordHash);
     }
 
     public boolean existeNombre(String nombre) {
@@ -34,6 +39,13 @@ public class UsuarioControlador {
             return false;
         }
         return usuarioDAO.existeNombre(nombre.trim());
+    }
+
+    public boolean existeCedula(String cedula) {
+        if (cedula == null || cedula.trim().isEmpty()) {
+            return false;
+        }
+        return usuarioDAO.obtenerPorCedula(cedula.trim()) != null;
     }
 
     public List<Object[]> obtenerTablaPosiciones() {

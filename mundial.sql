@@ -63,13 +63,14 @@ CREATE TABLE apostadores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     cedula VARCHAR(20) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     rol_id INT NOT NULL DEFAULT 2,
     FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT
 );
 
--- Insertar administrador por defecto
-INSERT INTO apostadores (nombre, cedula, rol_id) VALUES ('Admin', '1093595196', 1) 
-ON DUPLICATE KEY UPDATE cedula=VALUES(cedula), rol_id=VALUES(rol_id);
+-- Insertar administrador por defecto (la contraseña inicial es su cédula: '1093595196')
+INSERT INTO apostadores (nombre, cedula, password, rol_id) VALUES ('Admin', '1093595196', SHA2('1093595196', 256), 1) 
+ON DUPLICATE KEY UPDATE cedula=VALUES(cedula), password=VALUES(password), rol_id=VALUES(rol_id);
 
 
 -- Tabla de apuestas realizadas por los apostadores (pronósticos)

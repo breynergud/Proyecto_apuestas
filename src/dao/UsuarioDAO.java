@@ -58,12 +58,30 @@ public class UsuarioDAO {
         return false;
     }
 
-    public Usuario registrar(String nombre, String cedula) {
-        String sqlInsert = "INSERT INTO apostadores (nombre, cedula, rol_id) VALUES (?, ?, 2)"; // 2 is 'USUARIO'
+    public Usuario validarIngreso(String cedula, String passwordHash) {
+        String sql = "SELECT a.id, a.nombre, a.cedula, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id WHERE a.cedula = ? AND a.password = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, cedula);
+            pstmt.setString(2, passwordHash);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(rs.getInt("id"), rs.getString("nombre"), rs.getString("cedula"), rs.getString("rol"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al validar ingreso: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public Usuario registrar(String nombre, String cedula, String passwordHash) {
+        String sqlInsert = "INSERT INTO apostadores (nombre, cedula, password, rol_id) VALUES (?, ?, ?, 2)"; // 2 is 'USUARIO'
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlInsert)) {
             pstmt.setString(1, nombre);
             pstmt.setString(2, cedula);
+            pstmt.setString(3, passwordHash);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error al registrar usuario: " + e.getMessage());
