@@ -77,4 +77,71 @@ public class ApuestaDAO {
         }
         return lista;
     }
+
+    public List<Apuesta> obtenerTodasLasApuestas() {
+        List<Apuesta> lista = new ArrayList<>();
+        String sql = "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
+                     "el.nombre AS local, ev.nombre AS visitante, " +
+                     "a.goles_local_apuesta, a.goles_visitante_apuesta " +
+                     "FROM apuestas a " +
+                     "JOIN apostadores ap ON a.apostador_id = ap.id " +
+                     "JOIN partidos p ON a.partido_id = p.id " +
+                     "JOIN equipos el ON p.local_id = el.id " +
+                     "JOIN equipos ev ON p.visitante_id = ev.id " +
+                     "ORDER BY ap.nombre, el.nombre";
+        try (Connection conn = ConexionBD.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                lista.add(new Apuesta(
+                    rs.getInt("id"),
+                    rs.getInt("apostador_id"),
+                    rs.getInt("partido_id"),
+                    rs.getInt("goles_local_apuesta"),
+                    rs.getInt("goles_visitante_apuesta"),
+                    rs.getString("apostador"),
+                    rs.getString("local"),
+                    rs.getString("visitante")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener todas las apuestas: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId) {
+        List<Apuesta> lista = new ArrayList<>();
+        String sql = "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
+                     "el.nombre AS local, ev.nombre AS visitante, " +
+                     "a.goles_local_apuesta, a.goles_visitante_apuesta " +
+                     "FROM apuestas a " +
+                     "JOIN apostadores ap ON a.apostador_id = ap.id " +
+                     "JOIN partidos p ON a.partido_id = p.id " +
+                     "JOIN equipos el ON p.local_id = el.id " +
+                     "JOIN equipos ev ON p.visitante_id = ev.id " +
+                     "WHERE a.apostador_id = ? " +
+                     "ORDER BY el.nombre";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, usuarioId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Apuesta(
+                        rs.getInt("id"),
+                        rs.getInt("apostador_id"),
+                        rs.getInt("partido_id"),
+                        rs.getInt("goles_local_apuesta"),
+                        rs.getInt("goles_visitante_apuesta"),
+                        rs.getString("apostador"),
+                        rs.getString("local"),
+                        rs.getString("visitante")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener apuestas del usuario: " + e.getMessage());
+        }
+        return lista;
+    }
 }

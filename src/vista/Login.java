@@ -105,6 +105,11 @@ public class Login extends JFrame {
             return;
         }
 
+        if (!cedula.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La cédula debe contener únicamente números.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Usuario usuarioLogueado = usuarioControlador.iniciarSesion(cedula, password);
         if (usuarioLogueado != null) {
             abrirMenuPrincipal(usuarioLogueado);
@@ -117,6 +122,11 @@ public class Login extends JFrame {
         String cedula = txtCedula.getText().trim();
         if (cedula.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, escribe la Cédula que deseas registrar en el campo superior.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!cedula.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La cédula debe contener únicamente números.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -146,6 +156,21 @@ public class Login extends JFrame {
 
         if (nombre.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "El nombre y la contraseña no pueden estar vacíos.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (nombre.length() < 3) {
+            JOptionPane.showMessageDialog(this, "El nombre completo debe tener al menos 3 caracteres.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre debe contener únicamente letras y espacios.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (password.length() < 4) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 4 caracteres por seguridad.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

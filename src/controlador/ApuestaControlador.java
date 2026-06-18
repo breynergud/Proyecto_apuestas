@@ -45,4 +45,12 @@ public class ApuestaControlador {
     public List<Object[]> obtenerHistorialApuestas() {
         return apuestaDAO.obtenerHistorial();
     }
+
+    public List<Apuesta> obtenerTodasLasApuestas() {
+        return apuestaDAO.obtenerTodasLasApuestas();
+    }
+
+    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId) {
+        return apuestaDAO.obtenerApuestasPorUsuario(usuarioId);
+    }
 }
