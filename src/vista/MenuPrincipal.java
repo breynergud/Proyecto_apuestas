@@ -69,31 +69,29 @@ public class MenuPrincipal extends JFrame {
         this.usuarioControlador = new UsuarioControlador();
         this.apuestaControlador = new ApuestaControlador();
 
-        setTitle("WC 2026");
-        setSize(460, 820);
+        setTitle("Quiniela Mundial 2026 - Dashboard");
+        setSize(1000, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(true);
 
         JPanel raiz = new JPanel(new BorderLayout());
         raiz.setBackground(FONDO);
         setContentPane(raiz);
-
-        raiz.add(construirHeader(), BorderLayout.NORTH);
 
         panelContenido = new JPanel(new CardLayout());
         panelContenido.setBackground(FONDO);
         panelContenido.add(construirPanelHome(),         "home");
         panelContenido.add(construirPanelPronosticos(),  "pronosticos");
         panelContenido.add(construirPanelPosiciones(),   "posiciones");
-        panelContenido.add(construirPanelResultados(),   "resultados");
         panelContenido.add(construirPanelApuestas(),     "apuestas");
         if (usuarioLogueado.esAdministrador()) {
+            panelContenido.add(construirPanelResultados(), "resultados");
             panelContenido.add(construirPanelHistorial(),  "historial");
         }
         raiz.add(panelContenido, BorderLayout.CENTER);
 
-        raiz.add(construirNavbar(), BorderLayout.SOUTH);
+        raiz.add(construirSidebar(), BorderLayout.WEST);
         mostrarTab("home", 0);
     }
 
@@ -161,27 +159,32 @@ public class MenuPrincipal extends JFrame {
 
     // ── PANEL HOME ────────────────────────────────────────────────────────────
     private JPanel construirPanelHome() {
-        JPanel scroll = new JPanel();
-        scroll.setLayout(new BoxLayout(scroll, BoxLayout.Y_AXIS));
-        scroll.setBackground(FONDO);
-        scroll.setBorder(new EmptyBorder(0, 18, 18, 18));
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(FONDO);
+        mainPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
+
+        // LEFT COLUMN (Greeting + Stats + Quick Actions)
+        JPanel colLeft = new JPanel();
+        colLeft.setLayout(new BoxLayout(colLeft, BoxLayout.Y_AXIS));
+        colLeft.setOpaque(false);
 
         // Saludo
         JLabel lblHola = new JLabel("Hola, " + usuarioLogueado.getNombre() + "!");
-        lblHola.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblHola.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblHola.setForeground(VERDE_OSCURO);
         lblHola.setAlignmentX(Component.LEFT_ALIGNMENT);
         JLabel lblSub = new JLabel("Listo para la jornada de hoy en el Mundial?");
-        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblSub.setForeground(TEXTO_GRIS);
         lblSub.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scroll.add(lblHola);
-        scroll.add(Box.createVerticalStrut(4));
-        scroll.add(lblSub);
-        scroll.add(Box.createVerticalStrut(14));
+        
+        colLeft.add(lblHola);
+        colLeft.add(Box.createVerticalStrut(4));
+        colLeft.add(lblSub);
+        colLeft.add(Box.createVerticalStrut(18));
 
         // Badge PRO MEMBER
-        JPanel badge = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6)) {
+        JPanel badge = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6)) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -191,33 +194,34 @@ public class MenuPrincipal extends JFrame {
             }
         };
         badge.setOpaque(false);
-        badge.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        badge.setMaximumSize(new Dimension(150, 32));
         badge.setAlignmentX(Component.LEFT_ALIGNMENT);
         JLabel lblBadge = new JLabel("⭐  PRO MEMBER");
-        lblBadge.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblBadge.setForeground(VERDE_OSCURO);
         badge.add(lblBadge);
-        scroll.add(badge);
-        scroll.add(Box.createVerticalStrut(16));
+        
+        colLeft.add(badge);
+        colLeft.add(Box.createVerticalStrut(20));
 
-        // Cards puntos + rango
-        JPanel rowStats = new JPanel(new GridLayout(1, 2, 12, 0));
+        // Stats cards row
+        JPanel rowStats = new JPanel(new GridLayout(1, 2, 16, 0));
         rowStats.setOpaque(false);
-        rowStats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        rowStats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
         rowStats.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Card puntos
         JPanel cardPuntos = card();
         cardPuntos.setLayout(new BoxLayout(cardPuntos, BoxLayout.Y_AXIS));
-        cardPuntos.setBorder(new EmptyBorder(14, 16, 14, 16));
+        cardPuntos.setBorder(new EmptyBorder(16, 20, 16, 20));
         JLabel lblPLabel = new JLabel("TUS PUNTOS  🎯");
-        lblPLabel.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        lblPLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblPLabel.setForeground(TEXTO_GRIS);
         JLabel lblPuntos = new JLabel("1,250");
-        lblPuntos.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblPuntos.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblPuntos.setForeground(VERDE_OSCURO);
         JLabel lblPChange = new JLabel("+12% vs ayer");
-        lblPChange.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblPChange.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblPChange.setForeground(VERDE_OK);
         cardPuntos.add(lblPLabel); cardPuntos.add(Box.createVerticalStrut(4));
         cardPuntos.add(lblPuntos); cardPuntos.add(lblPChange);
@@ -225,40 +229,83 @@ public class MenuPrincipal extends JFrame {
         // Card rango
         JPanel cardRango = card();
         cardRango.setLayout(new BoxLayout(cardRango, BoxLayout.Y_AXIS));
-        cardRango.setBorder(new EmptyBorder(14, 16, 14, 16));
+        cardRango.setBorder(new EmptyBorder(16, 20, 16, 20));
         JLabel lblRLabel = new JLabel("RANGO ACTUAL  🏆");
-        lblRLabel.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        lblRLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblRLabel.setForeground(TEXTO_GRIS);
         JLabel lblRango = new JLabel("#42");
-        lblRango.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblRango.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblRango.setForeground(VERDE_OSCURO);
         JLabel lblRSub = new JLabel("Top 5% Global");
-        lblRSub.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblRSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblRSub.setForeground(TEXTO_GRIS);
         cardRango.add(lblRLabel); cardRango.add(Box.createVerticalStrut(4));
         cardRango.add(lblRango); cardRango.add(lblRSub);
 
         rowStats.add(cardPuntos); rowStats.add(cardRango);
-        scroll.add(rowStats);
-        scroll.add(Box.createVerticalStrut(14));
+        colLeft.add(rowStats);
+        colLeft.add(Box.createVerticalStrut(25));
+
+        // Acciones Rápidas
+        JLabel lblAcciones = new JLabel("Acciones Rápidas");
+        lblAcciones.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblAcciones.setForeground(VERDE_OSCURO);
+        lblAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+        colLeft.add(lblAcciones);
+        colLeft.add(Box.createVerticalStrut(12));
+
+        JPanel gridAcciones;
+        if (usuarioLogueado.esAdministrador()) {
+            gridAcciones = new JPanel(new GridLayout(3, 2, 12, 12));
+            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
+        } else {
+            gridAcciones = new JPanel(new GridLayout(2, 2, 12, 12));
+            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
+        }
+        gridAcciones.setOpaque(false);
+        gridAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        gridAcciones.add(accionCard("👥", "Ver Grupos",         false, e -> mostrarTab("pronosticos", 1)));
+        gridAcciones.add(accionCard("📊", "Consultar\nPosiciones", false, e -> mostrarTab("posiciones", 3)));
+        gridAcciones.add(accionCard("🎯", "Mis Apuestas",       false, e -> mostrarTab("apuestas", 2)));
+        
+        if (usuarioLogueado.esAdministrador()) {
+            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", false,  e -> mostrarTab("resultados", 4)));
+            gridAcciones.add(accionCard("📋",  "Historial Auditoría", false,  e -> {
+                actualizarHistorialTable();
+                ((CardLayout) panelContenido.getLayout()).show(panelContenido, "historial");
+                if (navBtns != null) {
+                    for (JButton btn : navBtns) btn.setForeground(new Color(190, 220, 190));
+                }
+            }));
+            gridAcciones.add(accionCard("🔧",  "Ver Todas Apuestas",  false,  e -> mostrarTab("apuestas", 2)));
+        } else {
+            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", true,   e -> JOptionPane.showMessageDialog(this, "Sólo disponible para Administradores.", "Restringido", JOptionPane.WARNING_MESSAGE)));
+        }
+        colLeft.add(gridAcciones);
+
+        // RIGHT COLUMN (Live Match + final predictions banner + featured match)
+        JPanel colRight = new JPanel();
+        colRight.setLayout(new BoxLayout(colRight, BoxLayout.Y_AXIS));
+        colRight.setOpaque(false);
 
         // Card LIVE NOW
         JPanel cardLive = card();
         cardLive.setLayout(new BorderLayout(10, 6));
-        cardLive.setBorder(new EmptyBorder(14, 16, 14, 16));
-        cardLive.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+        cardLive.setBorder(new EmptyBorder(16, 20, 16, 20));
+        cardLive.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
         cardLive.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel liveTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         liveTop.setOpaque(false);
         JLabel dotLive = new JLabel("● LIVE NOW");
-        dotLive.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        dotLive.setFont(new Font("Segoe UI", Font.BOLD, 12));
         dotLive.setForeground(ROJO_LIVE);
         liveTop.add(dotLive);
         cardLive.add(liveTop, BorderLayout.NORTH);
 
         JLabel lblLiveMatch = new JLabel("BRA v GER");
-        lblLiveMatch.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblLiveMatch.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblLiveMatch.setForeground(VERDE_OSCURO);
         cardLive.add(lblLiveMatch, BorderLayout.CENTER);
 
@@ -271,8 +318,9 @@ public class MenuPrincipal extends JFrame {
         btnVerPartido.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnVerPartido.addActionListener(e -> mostrarTab("pronosticos", 1));
         cardLive.add(btnVerPartido, BorderLayout.SOUTH);
-        scroll.add(cardLive);
-        scroll.add(Box.createVerticalStrut(14));
+        
+        colRight.add(cardLive);
+        colRight.add(Box.createVerticalStrut(16));
 
         // Banner predicciones finales
         JPanel banner = new JPanel() {
@@ -286,16 +334,16 @@ public class MenuPrincipal extends JFrame {
         };
         banner.setLayout(new BoxLayout(banner, BoxLayout.Y_AXIS));
         banner.setOpaque(false);
-        banner.setBorder(new EmptyBorder(20, 24, 20, 24));
+        banner.setBorder(new EmptyBorder(16, 20, 16, 20));
         banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         banner.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lblTrophy = new JLabel("🏆", SwingConstants.CENTER);
-        lblTrophy.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
+        lblTrophy.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         lblTrophy.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblBannerTitle = new JLabel("Predicciones Finales", SwingConstants.CENTER);
-        lblBannerTitle.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        lblBannerTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblBannerTitle.setForeground(Color.WHITE);
         lblBannerTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -314,74 +362,54 @@ public class MenuPrincipal extends JFrame {
                 super.paintComponent(g);
             }
         };
-        btnApostar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnApostar.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnApostar.setForeground(VERDE_OSCURO);
         btnApostar.setOpaque(false); btnApostar.setContentAreaFilled(false);
         btnApostar.setBorderPainted(false); btnApostar.setFocusPainted(false);
         btnApostar.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnApostar.setMaximumSize(new Dimension(180, 38));
+        btnApostar.setMaximumSize(new Dimension(160, 34));
         btnApostar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnApostar.addActionListener(e -> mostrarTab("pronosticos", 1));
 
-        banner.add(lblTrophy); banner.add(Box.createVerticalStrut(6));
-        banner.add(lblBannerTitle); banner.add(Box.createVerticalStrut(6));
-        banner.add(lblBannerSub); banner.add(Box.createVerticalStrut(12));
+        banner.add(lblTrophy); banner.add(Box.createVerticalStrut(4));
+        banner.add(lblBannerTitle); banner.add(Box.createVerticalStrut(4));
+        banner.add(lblBannerSub); banner.add(Box.createVerticalStrut(10));
         banner.add(btnApostar);
-        scroll.add(banner);
-        scroll.add(Box.createVerticalStrut(18));
-
-        // Acciones Rápidas
-        JLabel lblAcciones = new JLabel("Acciones Rápidas");
-        lblAcciones.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        lblAcciones.setForeground(VERDE_OSCURO);
-        lblAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
-        scroll.add(lblAcciones);
-        scroll.add(Box.createVerticalStrut(10));
-
-        JPanel gridAcciones;
-        if (usuarioLogueado.esAdministrador()) {
-            gridAcciones = new JPanel(new GridLayout(3, 2, 12, 12));
-            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
-        } else {
-            gridAcciones = new JPanel(new GridLayout(2, 2, 12, 12));
-            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
-        }
-        gridAcciones.setOpaque(false);
-        gridAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        gridAcciones.add(accionCard("👥", "Ver Grupos",         false, e -> mostrarTab("pronosticos", 1)));
-        gridAcciones.add(accionCard("📊", "Consultar\nPosiciones", false, e -> mostrarTab("posiciones", usuarioLogueado.esAdministrador() ? 3 : 3)));
-        gridAcciones.add(accionCard("🎯", "Mis Apuestas",       false, e -> mostrarTab("apuestas", 2)));
         
-        if (usuarioLogueado.esAdministrador()) {
-            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", false,  e -> mostrarTab("resultados", 4)));
-            gridAcciones.add(accionCard("📋",  "Historial Auditoría", false,  e -> {
-                actualizarHistorialTable();
-                ((CardLayout) panelContenido.getLayout()).show(panelContenido, "historial");
-                if (navBtns != null) {
-                    for (JButton btn : navBtns) btn.setForeground(new Color(160, 190, 160));
-                }
-            }));
-            gridAcciones.add(accionCard("🔧",  "Ver Todas Apuestas",  false,  e -> mostrarTab("apuestas", 2)));
-        } else {
-            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", true,   e -> JOptionPane.showMessageDialog(this, "Sólo disponible para Administradores.", "Restringido", JOptionPane.WARNING_MESSAGE)));
-        }
-
-        scroll.add(gridAcciones);
-        scroll.add(Box.createVerticalStrut(18));
+        colRight.add(banner);
+        colRight.add(Box.createVerticalStrut(16));
 
         // Partido Destacado
-        scroll.add(construirPartidoDestacado());
-        scroll.add(Box.createVerticalStrut(10));
+        colRight.add(construirPartidoDestacado());
 
-        JScrollPane sp = new JScrollPane(scroll);
+        // GridBagLayout constraints for 2 column layout
+        GridBagConstraints gbcLeft = new GridBagConstraints();
+        gbcLeft.gridx = 0;
+        gbcLeft.gridy = 0;
+        gbcLeft.weightx = 0.55;
+        gbcLeft.weighty = 1.0;
+        gbcLeft.fill = GridBagConstraints.BOTH;
+        gbcLeft.insets = new Insets(0, 0, 0, 10);
+        mainPanel.add(colLeft, gbcLeft);
+
+        GridBagConstraints gbcRight = new GridBagConstraints();
+        gbcRight.gridx = 1;
+        gbcRight.gridy = 0;
+        gbcRight.weightx = 0.45;
+        gbcRight.weighty = 1.0;
+        gbcRight.fill = GridBagConstraints.BOTH;
+        gbcRight.insets = new Insets(0, 10, 0, 0);
+        mainPanel.add(colRight, gbcRight);
+
+        // Put mainPanel inside JScrollPane so it's scrollable if resized too small
+        JScrollPane sp = new JScrollPane(mainPanel);
         sp.setBorder(null);
         sp.getVerticalScrollBar().setUnitIncrement(12);
         sp.setBackground(FONDO);
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(FONDO);
-        wrapper.add(sp);
+        wrapper.add(sp, BorderLayout.CENTER);
         return wrapper;
     }
 
@@ -525,19 +553,9 @@ public class MenuPrincipal extends JFrame {
         return p;
     }
 
-    // ── NAVBAR ────────────────────────────────────────────────────────────────
-    private JPanel construirNavbar() {
-        String[][] tabs;
-        String[] keys;
-        if (usuarioLogueado.esAdministrador()) {
-            tabs = new String[][]{{"🏠","Home"},{"⚽","Matches"},{"🎯","Bets"},{"📊","Leaderboard"},{"⚙️","Results"}};
-            keys = new String[]{"home","pronosticos","apuestas","posiciones","resultados"};
-        } else {
-            tabs = new String[][]{{"🏠","Home"},{"⚽","Matches"},{"🎯","My Bets"},{"📊","Leaderboard"}};
-            keys = new String[]{"home","pronosticos","apuestas","posiciones"};
-        }
-
-        JPanel nav = new JPanel(new GridLayout(1, tabs.length)) {
+    // ── SIDEBAR (DESKTOP NAVIGATION) ──────────────────────────────────────────
+    private JPanel construirSidebar() {
+        JPanel sidebar = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setColor(VERDE_OSCURO);
@@ -545,40 +563,165 @@ public class MenuPrincipal extends JFrame {
                 g2.dispose();
             }
         };
-        nav.setOpaque(false);
-        nav.setPreferredSize(new Dimension(0, 64));
+        sidebar.setLayout(new BorderLayout());
+        sidebar.setPreferredSize(new Dimension(220, 0));
+        sidebar.setOpaque(false);
+
+        // --- TOP SECTION: Logo + Profile ---
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setOpaque(false);
+        topPanel.setBorder(new EmptyBorder(24, 20, 24, 20));
+
+        JLabel lblLogo = new JLabel("⚽ WC 2026");
+        lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblLogo.setForeground(AMARILLO);
+        lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(lblLogo);
+        topPanel.add(Box.createVerticalStrut(20));
+
+        // Profile Avatar
+        JPanel avatar = new JPanel() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(180, 200, 180));
+                g2.fillOval(0, 0, getWidth(), getHeight());
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                g2.setColor(VERDE_OSCURO);
+                String ini = usuarioLogueado.getNombre().substring(0, 1).toUpperCase();
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(ini, (getWidth() - fm.stringWidth(ini)) / 2, (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
+                g2.dispose();
+            }
+        };
+        avatar.setPreferredSize(new Dimension(48, 48));
+        avatar.setMaximumSize(new Dimension(48, 48));
+        avatar.setOpaque(false);
+        avatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(avatar);
+        topPanel.add(Box.createVerticalStrut(10));
+
+        JLabel lblUser = new JLabel(usuarioLogueado.getNombre());
+        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblUser.setForeground(Color.WHITE);
+        lblUser.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(lblUser);
+
+        JLabel lblRole = new JLabel(usuarioLogueado.esAdministrador() ? "Administrador" : "Apostador");
+        lblRole.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblRole.setForeground(new Color(170, 200, 170));
+        lblRole.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(lblRole);
+
+        sidebar.add(topPanel, BorderLayout.NORTH);
+
+        // --- CENTER SECTION: Menu Buttons ---
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setOpaque(false);
+        menuPanel.setBorder(new EmptyBorder(10, 12, 10, 12));
+
+        String[][] tabs;
+        if (usuarioLogueado.esAdministrador()) {
+            tabs = new String[][]{
+                {"🏠  Home", "home"},
+                {"⚽  Matches", "pronosticos"},
+                {"🎯  Bets", "apuestas"},
+                {"📊  Leaderboard", "posiciones"},
+                {"⚙️  Results", "resultados"}
+            };
+        } else {
+            tabs = new String[][]{
+                {"🏠  Home", "home"},
+                {"⚽  Matches", "pronosticos"},
+                {"🎯  My Bets", "apuestas"},
+                {"📊  Leaderboard", "posiciones"}
+            };
+        }
 
         navBtns = new JButton[tabs.length];
 
         for (int i = 0; i < tabs.length; i++) {
             final int idx = i;
-            final String key = keys[i];
-            JButton btn = new JButton("<html><center>" + tabs[i][0] + "<br><span style='font-size:9px'>" + tabs[i][1] + "</span></center></html>") {
+            final String key = tabs[i][1];
+            JButton btn = new JButton(tabs[i][0]) {
                 @Override protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(key.equals("home") ? new Color(35, 85, 50) : VERDE_OSCURO);
-                    g2.fillRect(0, 0, getWidth(), getHeight());
-                    g2.dispose();
+                    if (getModel().isRollover() || getForeground().equals(AMARILLO)) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setColor(new Color(30, 80, 42));
+                        g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                        g2.dispose();
+                    }
                     super.paintComponent(g);
                 }
             };
-            btn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-            btn.setForeground(i == 0 ? AMARILLO : new Color(160, 190, 160));
-            btn.setOpaque(false); btn.setContentAreaFilled(false);
-            btn.setBorderPainted(false); btn.setFocusPainted(false);
+            btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            btn.setForeground(i == 0 ? AMARILLO : new Color(190, 220, 190));
+            btn.setOpaque(false);
+            btn.setContentAreaFilled(false);
+            btn.setBorderPainted(false);
+            btn.setFocusPainted(false);
+            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            btn.setMaximumSize(new Dimension(200, 40));
+            btn.setPreferredSize(new Dimension(200, 40));
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+            btn.setBorder(new EmptyBorder(0, 15, 0, 0));
             btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             btn.addActionListener(e -> mostrarTab(key, idx));
             navBtns[i] = btn;
-            nav.add(btn);
+            menuPanel.add(btn);
+            menuPanel.add(Box.createVerticalStrut(6));
         }
-        return nav;
+
+        sidebar.add(menuPanel, BorderLayout.CENTER);
+
+        // --- BOTTOM SECTION: Logout Button ---
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        JButton btnLogout = new JButton("🚪 Cerrar Sesión") {
+            @Override protected void paintComponent(Graphics g) {
+                if (getModel().isRollover()) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(new Color(180, 60, 60));
+                    g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                    g2.dispose();
+                }
+                super.paintComponent(g);
+            }
+        };
+        btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnLogout.setForeground(Color.WHITE);
+        btnLogout.setOpaque(false);
+        btnLogout.setContentAreaFilled(false);
+        btnLogout.setBorderPainted(false);
+        btnLogout.setFocusPainted(false);
+        btnLogout.setPreferredSize(new Dimension(0, 40));
+        btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnLogout.addActionListener(e -> {
+            new Login().setVisible(true);
+            this.dispose();
+        });
+
+        bottomPanel.add(btnLogout, BorderLayout.CENTER);
+        sidebar.add(bottomPanel, BorderLayout.SOUTH);
+
+        return sidebar;
     }
 
     private void mostrarTab(String key, int idx) {
         ((CardLayout) panelContenido.getLayout()).show(panelContenido, key);
         if (navBtns != null && idx < navBtns.length) {
             for (int i = 0; i < navBtns.length; i++) {
-                navBtns[i].setForeground(i == idx ? AMARILLO : new Color(160, 190, 160));
+                if (i == idx) {
+                    navBtns[i].setForeground(AMARILLO);
+                } else {
+                    navBtns[i].setForeground(new Color(190, 220, 190));
+                }
             }
         }
         if ("posiciones".equals(key)) actualizarRankingTable();
@@ -691,6 +834,8 @@ public class MenuPrincipal extends JFrame {
             int vV = prev != null ? prev.getGolesVisitanteApuesta() : 0;
             spinLocal  = new JSpinner(new SpinnerNumberModel(vL, 0, 20, 1));
             spinVisita = new JSpinner(new SpinnerNumberModel(vV, 0, 20, 1));
+            configurarSoloNumeros(spinLocal);
+            configurarSoloNumeros(spinVisita);
             
             if (tieneApuestaPrevia) {
                 spinLocal.setEnabled(false);
@@ -849,6 +994,8 @@ public class MenuPrincipal extends JFrame {
             int vV = part.getGolesVisitante() != null ? part.getGolesVisitante() : 0;
             spinLocal  = new JSpinner(new SpinnerNumberModel(vL, 0, 20, 1));
             spinVisita = new JSpinner(new SpinnerNumberModel(vV, 0, 20, 1));
+            configurarSoloNumeros(spinLocal);
+            configurarSoloNumeros(spinVisita);
             add(spinPanel("Local", spinLocal));
             add(spinPanel("Visita", spinVisita));
 
@@ -924,6 +1071,29 @@ public class MenuPrincipal extends JFrame {
         lbl.setForeground(TEXTO_GRIS);
         p.add(lbl); p.add(spin);
         return p;
+    }
+
+    private void configurarSoloNumeros(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
+            javax.swing.text.AbstractDocument doc = (javax.swing.text.AbstractDocument) txt.getDocument();
+            doc.setDocumentFilter(new javax.swing.text.DocumentFilter() {
+                @Override
+                public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                    if (string != null && string.matches("\\d+")) {
+                        super.insertString(fb, offset, string, attr);
+                    }
+                }
+
+                @Override
+                public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                    if (text != null && text.matches("\\d*")) {
+                        super.replace(fb, offset, length, text, attrs);
+                    }
+                }
+            });
+        }
     }
 
     // =========================================================================
