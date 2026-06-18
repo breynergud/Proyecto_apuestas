@@ -10,6 +10,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP VIEW IF EXISTS ranking_apostadores;
 DROP TABLE IF EXISTS apuestas;
 DROP TABLE IF EXISTS apostadores;
+DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS partidos;
 DROP TABLE IF EXISTS equipos;
 DROP TABLE IF EXISTS grupos;
@@ -47,16 +48,28 @@ CREATE TABLE partidos (
     FOREIGN KEY (visitante_id) REFERENCES equipos(id) ON DELETE CASCADE
 );
 
+-- Tabla de roles de usuario
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(30) UNIQUE NOT NULL
+);
+
+-- Insertar roles por defecto
+INSERT INTO roles (id, nombre) VALUES (1, 'ADMINISTRADOR'), (2, 'USUARIO') 
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre);
+
 -- Tabla de apostadores: Registra a las personas (usuarios y administradores)
 CREATE TABLE apostadores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     cedula VARCHAR(20) NOT NULL UNIQUE,
-    rol VARCHAR(20) NOT NULL DEFAULT 'USUARIO'
+    rol_id INT NOT NULL DEFAULT 2,
+    FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT
 );
 
 -- Insertar administrador por defecto
-INSERT INTO apostadores (nombre, cedula, rol) VALUES ('Admin', '12345', 'ADMINISTRADOR') ON DUPLICATE KEY UPDATE nombre=nombre;
+INSERT INTO apostadores (nombre, cedula, rol_id) VALUES ('Admin', '1093595196', 1) 
+ON DUPLICATE KEY UPDATE cedula=VALUES(cedula), rol_id=VALUES(rol_id);
 
 
 -- Tabla de apuestas realizadas por los apostadores (pronósticos)

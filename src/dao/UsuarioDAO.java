@@ -13,7 +13,7 @@ public class UsuarioDAO {
 
     public List<Usuario> obtenerTodos() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre, cedula, rol FROM apostadores ORDER BY nombre";
+        String sql = "SELECT a.id, a.nombre, a.cedula, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id ORDER BY a.nombre";
         try (Connection conn = ConexionBD.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -27,7 +27,7 @@ public class UsuarioDAO {
     }
 
     public Usuario obtenerPorCedula(String cedula) {
-        String sql = "SELECT id, nombre, cedula, rol FROM apostadores WHERE cedula = ?";
+        String sql = "SELECT a.id, a.nombre, a.cedula, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id WHERE a.cedula = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, cedula);
@@ -42,8 +42,24 @@ public class UsuarioDAO {
         return null;
     }
 
+    public boolean existeNombre(String nombre) {
+        String sql = "SELECT COUNT(*) FROM apostadores WHERE nombre = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nombre);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar existencia de nombre: " + e.getMessage());
+        }
+        return false;
+    }
+
     public Usuario registrar(String nombre, String cedula) {
-        String sqlInsert = "INSERT INTO apostadores (nombre, cedula, rol) VALUES (?, ?, 'USUARIO')";
+        String sqlInsert = "INSERT INTO apostadores (nombre, cedula, rol_id) VALUES (?, ?, 2)"; // 2 is 'USUARIO'
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlInsert)) {
             pstmt.setString(1, nombre);
@@ -55,7 +71,7 @@ public class UsuarioDAO {
         }
 
         // Recuperar el usuario creado/existente con su ID
-        String sqlSelect = "SELECT id, nombre, cedula, rol FROM apostadores WHERE cedula = ?";
+        String sqlSelect = "SELECT a.id, a.nombre, a.cedula, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id WHERE a.cedula = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlSelect)) {
             pstmt.setString(1, cedula);

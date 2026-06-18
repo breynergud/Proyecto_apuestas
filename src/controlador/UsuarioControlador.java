@@ -29,6 +29,13 @@ public class UsuarioControlador {
         return usuarioDAO.registrar(nombre.trim(), cedula.trim());
     }
 
+    public boolean existeNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return false;
+        }
+        return usuarioDAO.existeNombre(nombre.trim());
+    }
+
     public List<Object[]> obtenerTablaPosiciones() {
         return usuarioDAO.obtenerRanking();
     }

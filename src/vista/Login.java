@@ -128,6 +128,12 @@ public class Login extends JFrame {
             return;
         }
 
+        // Verificar si el nombre ya existe
+        if (usuarioControlador.existeNombre(nombre)) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario '" + nombre + "' ya está registrado por otra persona. Por favor elige otro.", "Nombre de Usuario Duplicado", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula);
         if (usuario != null) {
             JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
