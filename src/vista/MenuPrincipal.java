@@ -37,6 +37,9 @@ public class MenuPrincipal extends JFrame {
     private JTextArea txtAreaConsultaEquipos;
     private JTable tablaConsultaPartidos;
     private DefaultTableModel modeloTablaConsultaPartidos;
+
+    private JTable tablaHistorial;
+    private DefaultTableModel modeloTablaHistorial;
     private JTextField txtBuscarEquipo;
     private JButton btnBuscarEquipo;
 
@@ -91,9 +94,10 @@ public class MenuPrincipal extends JFrame {
             configurarPestanaPronosticos();
         }
         
-        // Solo el administrador puede registrar resultados reales
+        // Solo el administrador puede registrar resultados reales y ver historial
         if (usuarioLogueado.esAdministrador()) {
             configurarPestanaResultados();
+            configurarPestanaHistorial();
         }
 
         configurarPestanaPosiciones();
@@ -165,20 +169,29 @@ public class MenuPrincipal extends JFrame {
     }
 
     private void guardarApuestasGrupo(ActionEvent e) {
+        boolean guardadoAlguna = false;
         for (PartidoApuestaPanel pPanel : listaPanelesApuestas) {
-            int golesL = pPanel.getGolesLocal();
-            int golesV = pPanel.getGolesVisitante();
-            if (golesL >= 0 && golesV >= 0) {
-                apuestaControlador.guardarApuestaUsuario(
-                    usuarioLogueado.getId(),
-                    pPanel.getPartidoId(),
-                    golesL,
-                    golesV
-                );
+            if (!pPanel.tieneApuestaPrevia()) {
+                int golesL = pPanel.getGolesLocal();
+                int golesV = pPanel.getGolesVisitante();
+                if (golesL >= 0 && golesV >= 0) {
+                    apuestaControlador.guardarApuestaUsuario(
+                        usuarioLogueado.getId(),
+                        pPanel.getPartidoId(),
+                        golesL,
+                        golesV
+                    );
+                    guardadoAlguna = true;
+                }
             }
         }
-        JOptionPane.showMessageDialog(this, "¡Tus pronósticos del grupo han sido guardados con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        actualizarRankingTable(); // Recargar posiciones por si hay aciertos
+        if (guardadoAlguna) {
+            JOptionPane.showMessageDialog(this, "¡Tus nuevos pronósticos han sido guardados con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            actualizarRankingTable(); // Recargar posiciones por si hay aciertos
+            cargarPartidosParaApuestas(); // Recargar pestaña para bloquear las apuestas recién guardadas
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay nuevos pronósticos para guardar en este grupo.", "Información", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     // Panel contenedor individual para cada partido en la lista de pronósticos
@@ -186,9 +199,11 @@ public class MenuPrincipal extends JFrame {
         private int partidoId;
         private JSpinner spinLocal;
         private JSpinner spinVisita;
+        private boolean tieneApuestaPrevia;
 
         public PartidoApuestaPanel(Partido part, Apuesta apuestaPrevia) {
             this.partidoId = part.getId();
+            this.tieneApuestaPrevia = (apuestaPrevia != null);
             setLayout(new GridLayout(1, 5, 10, 0));
             setBackground(new Color(40, 40, 48));
             setBorder(BorderFactory.createCompoundBorder(
@@ -210,6 +225,11 @@ public class MenuPrincipal extends JFrame {
 
             spinLocal = new JSpinner(new SpinnerNumberModel(valLocal, 0, 20, 1));
             spinVisita = new JSpinner(new SpinnerNumberModel(valVisita, 0, 20, 1));
+
+            if (tieneApuestaPrevia) {
+                spinLocal.setEnabled(false);
+                spinVisita.setEnabled(false);
+            }
 
             JPanel panelSpinLocal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             panelSpinLocal.setOpaque(false);
@@ -234,6 +254,7 @@ public class MenuPrincipal extends JFrame {
         public int getPartidoId() { return partidoId; }
         public int getGolesLocal() { return (int) spinLocal.getValue(); }
         public int getGolesVisitante() { return (int) spinVisita.getValue(); }
+        public boolean tieneApuestaPrevia() { return tieneApuestaPrevia; }
     }
 
     // =========================================================================
@@ -553,6 +574,52 @@ public class MenuPrincipal extends JFrame {
 
         if (!encontrado) {
             JOptionPane.showMessageDialog(this, "No se encontraron partidos para el equipo: " + nombreEquipo, "Sin coincidencias", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    // =========================================================================
+    // PESTAÑA 5: HISTORIAL DE APUESTAS (ADMIN ONLY)
+    // =========================================================================
+    private void configurarPestanaHistorial() {
+        JPanel panelTab = new JPanel(new BorderLayout(10, 10));
+        panelTab.setBackground(new Color(25, 25, 30));
+        panelTab.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        JLabel lblHistorial = new JLabel("Historial General de Pronósticos Guardados", SwingConstants.CENTER);
+        lblHistorial.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblHistorial.setForeground(Color.WHITE);
+        panelTab.add(lblHistorial, BorderLayout.NORTH);
+
+        String[] columnas = {"ID Log", "Apostador / Jugador", "Partido", "Predicción", "Fecha de Registro", "Acción"};
+        modeloTablaHistorial = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        tablaHistorial = new JTable(modeloTablaHistorial);
+        tablaHistorial.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tablaHistorial.setRowHeight(25);
+        tablaHistorial.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JScrollPane scrollTable = new JScrollPane(tablaHistorial);
+        panelTab.add(scrollTable, BorderLayout.CENTER);
+
+        JButton btnActualizar = new JButton("🔄 Actualizar Historial");
+        btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnActualizar.setBackground(new Color(52, 152, 219));
+        btnActualizar.setForeground(Color.WHITE);
+        btnActualizar.addActionListener(e -> actualizarHistorialTable());
+        panelTab.add(btnActualizar, BorderLayout.SOUTH);
+
+        tabbedPane.addTab("📋 Historial de Apuestas (Admin)", panelTab);
+        actualizarHistorialTable();
+    }
+
+    private void actualizarHistorialTable() {
+        modeloTablaHistorial.setRowCount(0);
+        List<Object[]> logs = apuestaControlador.obtenerHistorialApuestas();
+        for (Object[] fila : logs) {
+            modeloTablaHistorial.addRow(fila);
         }
     }
 }

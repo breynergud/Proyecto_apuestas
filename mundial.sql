@@ -9,6 +9,7 @@ USE mundial_apuestas;
 SET FOREIGN_KEY_CHECKS = 0;
 DROP VIEW IF EXISTS ranking_apostadores;
 DROP TABLE IF EXISTS apuestas;
+DROP TABLE IF EXISTS historial_apuestas;
 DROP TABLE IF EXISTS apostadores;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS partidos;
@@ -84,6 +85,42 @@ CREATE TABLE apuestas (
     FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE,
     UNIQUE KEY apuesta_unica (apostador_id, partido_id)
 );
+
+-- Tabla de historial de pronósticos creados
+CREATE TABLE historial_apuestas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    apuesta_id INT NOT NULL,
+    apostador VARCHAR(100) NOT NULL,
+    partido VARCHAR(150) NOT NULL,
+    goles_local_apuesta INT NOT NULL,
+    goles_visitante_apuesta INT NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accion VARCHAR(20) NOT NULL
+);
+
+-- Trigger de inserción de apuestas para historial
+DELIMITER //
+CREATE TRIGGER trg_apuestas_insert
+AFTER INSERT ON apuestas
+FOR EACH ROW
+BEGIN
+    DECLARE v_apostador VARCHAR(100);
+    DECLARE v_local VARCHAR(50);
+    DECLARE v_visitante VARCHAR(50);
+    
+    SELECT nombre INTO v_apostador FROM apostadores WHERE id = NEW.apostador_id;
+    
+    SELECT e1.nombre, e2.nombre INTO v_local, v_visitante 
+    FROM partidos p 
+    JOIN equipos e1 ON p.local_id = e1.id 
+    JOIN equipos e2 ON p.visitante_id = e2.id
+    WHERE p.id = NEW.partido_id;
+    
+    INSERT INTO historial_apuestas (apuesta_id, apostador, partido, goles_local_apuesta, goles_visitante_apuesta, accion)
+    VALUES (NEW.id, v_apostador, CONCAT(v_local, ' vs ', v_visitante), NEW.goles_local_apuesta, NEW.goles_visitante_apuesta, 'CREADA');
+END//
+DELIMITER ;
+
 
 -- ========================================================
 -- 2. VISTA SQL PARA CALCULAR PUNTOS Y RANKING EN TIEMPO REAL
