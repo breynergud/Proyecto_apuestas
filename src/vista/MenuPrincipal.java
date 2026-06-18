@@ -49,6 +49,9 @@ public class MenuPrincipal extends JFrame {
     private JComboBox<String> comboGruposConsulta;
     private JTextArea txtAreaConsultaEquipos;
     private DefaultTableModel modeloTablaConsultaPartidos;
+
+    private JTable tablaHistorial;
+    private DefaultTableModel modeloTablaHistorial;
     private JTextField txtBuscarEquipo;
 
     private final String[] gruposLetras = {"A","B","C","D","E","F","G","H","I","J","K","L"};
@@ -83,8 +86,40 @@ public class MenuPrincipal extends JFrame {
         panelContenido.add(construirPanelResultados(),   "resultados");
         raiz.add(panelContenido, BorderLayout.CENTER);
 
-        raiz.add(construirNavbar(), BorderLayout.SOUTH);
-        mostrarTab("home", 0);
+        JButton btnLogout = new JButton("Cerrar Sesión");
+        btnLogout.setBackground(new Color(192, 57, 43));
+        btnLogout.setForeground(Color.WHITE);
+        btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnLogout.setFocusPainted(false);
+        btnLogout.addActionListener(e -> {
+            new Login().setVisible(true);
+            this.dispose();
+        });
+        panelBanner.add(btnLogout, BorderLayout.EAST);
+
+        panelRaiz.add(panelBanner, BorderLayout.NORTH);
+
+        // Inicializar el JTabbedPane
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tabbedPane.setBackground(new Color(38, 38, 45));
+        tabbedPane.setForeground(Color.WHITE);
+
+        // Los usuarios normales registran apuestas
+        if (!usuarioLogueado.esAdministrador()) {
+            configurarPestanaPronosticos();
+        }
+        
+        // Solo el administrador puede registrar resultados reales y ver historial
+        if (usuarioLogueado.esAdministrador()) {
+            configurarPestanaResultados();
+            configurarPestanaHistorial();
+        }
+
+        configurarPestanaPosiciones();
+        configurarPestanaConsultas();
+
+        panelRaiz.add(tabbedPane, BorderLayout.CENTER);
     }
 
     // ── HEADER ───────────────────────────────────────────────────────────────
@@ -582,23 +617,42 @@ public class MenuPrincipal extends JFrame {
     }
 
     private void guardarApuestasGrupo(ActionEvent e) {
-        for (PartidoApuestaPanel p : listaPanelesApuestas) {
-            int l = p.getGolesLocal(), v = p.getGolesVisitante();
-            if (l >= 0 && v >= 0)
-                apuestaControlador.guardarApuestaUsuario(usuarioLogueado.getId(), p.getPartidoId(), l, v);
+        boolean guardadoAlguna = false;
+        for (PartidoApuestaPanel pPanel : listaPanelesApuestas) {
+            if (!pPanel.tieneApuestaPrevia()) {
+                int golesL = pPanel.getGolesLocal();
+                int golesV = pPanel.getGolesVisitante();
+                if (golesL >= 0 && golesV >= 0) {
+                    apuestaControlador.guardarApuestaUsuario(
+                        usuarioLogueado.getId(),
+                        pPanel.getPartidoId(),
+                        golesL,
+                        golesV
+                    );
+                    guardadoAlguna = true;
+                }
+            }
         }
-        JOptionPane.showMessageDialog(this, "Pronósticos guardados.", "Listo", JOptionPane.INFORMATION_MESSAGE);
-        actualizarRankingTable();
+        if (guardadoAlguna) {
+            JOptionPane.showMessageDialog(this, "¡Tus nuevos pronósticos han sido guardados con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            actualizarRankingTable(); // Recargar posiciones por si hay aciertos
+            cargarPartidosParaApuestas(); // Recargar pestaña para bloquear las apuestas recién guardadas
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay nuevos pronósticos para guardar en este grupo.", "Información", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     class PartidoApuestaPanel extends JPanel {
-        private final int partidoId;
-        private final JSpinner spinLocal, spinVisita;
+        private int partidoId;
+        private JSpinner spinLocal;
+        private JSpinner spinVisita;
+        private boolean tieneApuestaPrevia;
 
         PartidoApuestaPanel(Partido part, Apuesta prev) {
             this.partidoId = part.getId();
-            setLayout(new GridLayout(1, 5, 8, 0));
-            setBackground(CARD_BG);
+            this.tieneApuestaPrevia = (apuestaPrevia != null);
+            setLayout(new GridLayout(1, 5, 10, 0));
+            setBackground(new Color(40, 40, 48));
             setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 225, 215)),
                 new EmptyBorder(10, 14, 10, 14)));
@@ -621,15 +675,38 @@ public class MenuPrincipal extends JFrame {
             add(spinPanel("Local", spinLocal));
             add(spinPanel("Visita", spinVisita));
 
-            JLabel estado = new JLabel(part.isRegistrado() ? "✔ Final" : "⏳ Pend.", SwingConstants.CENTER);
-            estado.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            estado.setForeground(part.isRegistrado() ? VERDE_OK : AMARILLO_WARN);
-            add(estado);
+            spinLocal = new JSpinner(new SpinnerNumberModel(valLocal, 0, 20, 1));
+            spinVisita = new JSpinner(new SpinnerNumberModel(valVisita, 0, 20, 1));
+
+            if (tieneApuestaPrevia) {
+                spinLocal.setEnabled(false);
+                spinVisita.setEnabled(false);
+            }
+
+            JPanel panelSpinLocal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            panelSpinLocal.setOpaque(false);
+            panelSpinLocal.add(new JLabel("Goles Local: "));
+            panelSpinLocal.getComponent(0).setForeground(Color.LIGHT_GRAY);
+            panelSpinLocal.add(spinLocal);
+            add(panelSpinLocal);
+
+            JPanel panelSpinVisita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            panelSpinVisita.setOpaque(false);
+            panelSpinVisita.add(new JLabel("Goles Visita: "));
+            panelSpinVisita.getComponent(0).setForeground(Color.LIGHT_GRAY);
+            panelSpinVisita.add(spinVisita);
+            add(panelSpinVisita);
+            
+            JLabel lblEstado = new JLabel(part.isRegistrado() ? "Finalizado" : "Pendiente", SwingConstants.CENTER);
+            lblEstado.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+            lblEstado.setForeground(part.isRegistrado() ? new Color(46, 204, 113) : new Color(241, 196, 15));
+            add(lblEstado);
         }
 
-        int getPartidoId()      { return partidoId; }
-        int getGolesLocal()     { return (int) spinLocal.getValue(); }
-        int getGolesVisitante() { return (int) spinVisita.getValue(); }
+        public int getPartidoId() { return partidoId; }
+        public int getGolesLocal() { return (int) spinLocal.getValue(); }
+        public int getGolesVisitante() { return (int) spinVisita.getValue(); }
+        public boolean tieneApuestaPrevia() { return tieneApuestaPrevia; }
     }
 
     // ── PANEL POSICIONES ─────────────────────────────────────────────────────
@@ -810,5 +887,51 @@ public class MenuPrincipal extends JFrame {
         lbl.setForeground(TEXTO_GRIS);
         p.add(lbl); p.add(spin);
         return p;
+    }
+
+    // =========================================================================
+    // PESTAÑA 5: HISTORIAL DE APUESTAS (ADMIN ONLY)
+    // =========================================================================
+    private void configurarPestanaHistorial() {
+        JPanel panelTab = new JPanel(new BorderLayout(10, 10));
+        panelTab.setBackground(new Color(25, 25, 30));
+        panelTab.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        JLabel lblHistorial = new JLabel("Historial General de Pronósticos Guardados", SwingConstants.CENTER);
+        lblHistorial.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblHistorial.setForeground(Color.WHITE);
+        panelTab.add(lblHistorial, BorderLayout.NORTH);
+
+        String[] columnas = {"ID Log", "Apostador / Jugador", "Partido", "Predicción", "Fecha de Registro", "Acción"};
+        modeloTablaHistorial = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        tablaHistorial = new JTable(modeloTablaHistorial);
+        tablaHistorial.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tablaHistorial.setRowHeight(25);
+        tablaHistorial.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JScrollPane scrollTable = new JScrollPane(tablaHistorial);
+        panelTab.add(scrollTable, BorderLayout.CENTER);
+
+        JButton btnActualizar = new JButton("🔄 Actualizar Historial");
+        btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnActualizar.setBackground(new Color(52, 152, 219));
+        btnActualizar.setForeground(Color.WHITE);
+        btnActualizar.addActionListener(e -> actualizarHistorialTable());
+        panelTab.add(btnActualizar, BorderLayout.SOUTH);
+
+        tabbedPane.addTab("📋 Historial de Apuestas (Admin)", panelTab);
+        actualizarHistorialTable();
+    }
+
+    private void actualizarHistorialTable() {
+        modeloTablaHistorial.setRowCount(0);
+        List<Object[]> logs = apuestaControlador.obtenerHistorialApuestas();
+        for (Object[] fila : logs) {
+            modeloTablaHistorial.addRow(fila);
+        }
     }
 }

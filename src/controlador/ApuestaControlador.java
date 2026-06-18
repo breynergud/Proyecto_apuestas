@@ -41,4 +41,8 @@ public class ApuestaControlador {
     public void registrarResultadoReal(int partidoId, Integer golesLocal, Integer golesVisitante) {
         partidoDAO.registrarMarcador(partidoId, golesLocal, golesVisitante);
     }
+
+    public List<Object[]> obtenerHistorialApuestas() {
+        return apuestaDAO.obtenerHistorial();
+    }
 }

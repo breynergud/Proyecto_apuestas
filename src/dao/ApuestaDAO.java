@@ -3,8 +3,11 @@ package dao;
 import modelo.Apuesta;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApuestaDAO {
 
@@ -46,5 +49,32 @@ public class ApuestaDAO {
             System.err.println("Error al obtener apuesta del usuario: " + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Recupera el historial de creación de apuestas/pronósticos de todos los usuarios.
+     * @return Una lista de filas con los registros del historial para mostrar en una tabla
+     */
+    public List<Object[]> obtenerHistorial() {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT id, apostador, partido, goles_local_apuesta, goles_visitante_apuesta, fecha_registro, accion " +
+                     "FROM historial_apuestas ORDER BY fecha_registro DESC";
+        try (Connection conn = ConexionBD.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                lista.add(new Object[]{
+                    rs.getInt("id"),
+                    rs.getString("apostador"),
+                    rs.getString("partido"),
+                    rs.getInt("goles_local_apuesta") + " - " + rs.getInt("goles_visitante_apuesta"),
+                    rs.getTimestamp("fecha_registro"),
+                    rs.getString("accion")
+                });
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener historial de apuestas: " + e.getMessage());
+        }
+        return lista;
     }
 }

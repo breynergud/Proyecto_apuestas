@@ -7,299 +7,166 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.geom.RoundRectangle2D;
-import java.util.List;
 
 public class Login extends JFrame {
 
-    // Colores del diseño
-    private static final Color VERDE_OSCURO   = new Color(20, 60, 30);
-    private static final Color VERDE_BTN      = new Color(22, 68, 35);
-    private static final Color AMARILLO       = new Color(230, 190, 40);
-    private static final Color FONDO_CLARO    = new Color(245, 245, 240);
-    private static final Color CARD_BG        = Color.WHITE;
-    private static final Color TEXTO_GRIS     = new Color(120, 120, 120);
-    private static final Color AMARILLO_SUAVE = new Color(255, 248, 220);
-
-    private JTextField txtNombre;
+    private JTextField txtCedula;
+    private JPasswordField txtPassword;
+    private JButton btnIngresar;
+    private JButton btnRegistrar;
     private UsuarioControlador usuarioControlador;
 
     public Login() {
         usuarioControlador = new UsuarioControlador();
 
-        setTitle("WC 2026 - Quiniela");
-        setSize(420, 720);
+        // Configuración básica de ventana
+        setTitle("Mundial 2026 - Quiniela");
+        setSize(400, 310); // Ventana adaptada para el nuevo campo
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         setUndecorated(false);
 
-        // Panel raíz con fondo degradado
-        JPanel panelRaiz = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g;
-                // Fondo superior verde oscuro (estadio)
-                GradientPaint gp = new GradientPaint(0, 0, new Color(30, 80, 40), 0, getHeight() / 2, FONDO_CLARO);
-                g2.setPaint(gp);
-                g2.fillRect(0, 0, getWidth(), getHeight() / 2);
-                // Fondo inferior gris claro
-                g2.setColor(FONDO_CLARO);
-                g2.fillRect(0, getHeight() / 2, getWidth(), getHeight() / 2);
-            }
-        };
-        setContentPane(panelRaiz);
+        // Panel Principal con fondo oscuro moderno
+        JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
+        panelPrincipal.setBackground(new Color(30, 30, 36));
+        panelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setContentPane(panelPrincipal);
 
-        // ── HEADER (logo + título) ──
-        JPanel panelHeader = new JPanel();
-        panelHeader.setLayout(new BoxLayout(panelHeader, BoxLayout.Y_AXIS));
-        panelHeader.setOpaque(false);
-        panelHeader.setBorder(new EmptyBorder(40, 0, 20, 0));
+        // Header / Título
+        JLabel lblTitulo = new JLabel("POOLS MUNDIAL 2026", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitulo.setForeground(new Color(46, 204, 113)); // Verde brillante fútbol
+        panelPrincipal.add(lblTitulo, BorderLayout.NORTH);
 
-        // Ícono balón
-        JLabel lblIcono = new JLabel("⚽", SwingConstants.CENTER) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(VERDE_OSCURO);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 36));
-        lblIcono.setForeground(AMARILLO);
-        lblIcono.setOpaque(false);
-        lblIcono.setPreferredSize(new Dimension(80, 80));
-        lblIcono.setMaximumSize(new Dimension(80, 80));
-        lblIcono.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Panel Central (Formulario)
+        JPanel panelForm = new JPanel(new GridLayout(4, 1, 6, 6));
+        panelForm.setOpaque(false);
 
-        // Título WC 2026
-        JLabel lblTitulo = new JLabel("WC 2026", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 38));
-        lblTitulo.setForeground(VERDE_OSCURO);
-        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Entrada de Cédula
+        JLabel lblCedula = new JLabel("Cédula / ID:");
+        lblCedula.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblCedula.setForeground(Color.LIGHT_GRAY);
+        panelForm.add(lblCedula);
 
-        // Línea amarilla decorativa
-        JPanel lineaAmarilla = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                g.setColor(AMARILLO);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        lineaAmarilla.setOpaque(false);
-        lineaAmarilla.setPreferredSize(new Dimension(60, 4));
-        lineaAmarilla.setMaximumSize(new Dimension(60, 4));
-        lineaAmarilla.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txtCedula = new JTextField();
+        txtCedula.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCedula.setBackground(new Color(45, 45, 52));
+        txtCedula.setForeground(Color.WHITE);
+        txtCedula.setCaretColor(Color.WHITE);
+        txtCedula.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 1));
+        panelForm.add(txtCedula);
 
-        panelHeader.add(lblIcono);
-        panelHeader.add(Box.createVerticalStrut(12));
-        panelHeader.add(lblTitulo);
-        panelHeader.add(Box.createVerticalStrut(8));
-        panelHeader.add(lineaAmarilla);
+        // Entrada de Contraseña
+        JLabel lblPassword = new JLabel("Contraseña:");
+        lblPassword.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblPassword.setForeground(Color.LIGHT_GRAY);
+        panelForm.add(lblPassword);
 
-        panelRaiz.add(panelHeader, BorderLayout.NORTH);
+        txtPassword = new JPasswordField();
+        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtPassword.setBackground(new Color(45, 45, 52));
+        txtPassword.setForeground(Color.WHITE);
+        txtPassword.setCaretColor(Color.WHITE);
+        txtPassword.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 1));
+        panelForm.add(txtPassword);
 
-        // ── CENTRO: tarjeta blanca + features + footer ──
-        JPanel panelCentro = new JPanel();
-        panelCentro.setLayout(new BoxLayout(panelCentro, BoxLayout.Y_AXIS));
-        panelCentro.setOpaque(false);
-        panelCentro.setBorder(new EmptyBorder(10, 24, 10, 24));
+        panelPrincipal.add(panelForm, BorderLayout.CENTER);
 
-        // Tarjeta blanca
-        JPanel card = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20));
-                g2.dispose();
-            }
-        };
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setOpaque(false);
-        card.setBorder(new EmptyBorder(28, 28, 24, 28));
-        card.setMaximumSize(new Dimension(400, 400));
+        // Panel Inferior (Botones)
+        JPanel panelBotones = new JPanel(new GridLayout(1, 2, 12, 0));
+        panelBotones.setOpaque(false);
+        panelBotones.setBorder(new EmptyBorder(15, 0, 0, 0));
 
-        // Bienvenido
-        JLabel lblBienvenido = new JLabel("Bienvenido al Mundial 2026", SwingConstants.CENTER);
-        lblBienvenido.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        lblBienvenido.setForeground(VERDE_OSCURO);
-        lblBienvenido.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnIngresar = new JButton("Ingresar");
+        btnIngresar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnIngresar.setBackground(new Color(46, 204, 113));
+        btnIngresar.setForeground(Color.WHITE);
+        btnIngresar.setFocusPainted(false);
+        btnIngresar.addActionListener(this::accionIngresar);
+        panelBotones.add(btnIngresar);
 
-        JLabel lblSub = new JLabel("<html><center>¿Listo para apostar? Ingresa tu nombre<br>para comenzar.</center></html>", SwingConstants.CENTER);
-        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblSub.setForeground(TEXTO_GRIS);
-        lblSub.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        card.add(lblBienvenido);
-        card.add(Box.createVerticalStrut(8));
-        card.add(lblSub);
-        card.add(Box.createVerticalStrut(22));
-
-        // Label campo
-        JLabel lblNombreLabel = new JLabel("Nombre Completo");
-        lblNombreLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblNombreLabel.setForeground(VERDE_OSCURO);
-        lblNombreLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(lblNombreLabel);
-        card.add(Box.createVerticalStrut(6));
-
-        // Campo texto con placeholder y ícono
-        txtNombre = new JTextField("Tu nombre completo") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(248, 248, 248));
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNombre.setForeground(TEXTO_GRIS);
-        txtNombre.setOpaque(false);
-        txtNombre.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
-            new EmptyBorder(10, 14, 10, 14)
-        ));
-        txtNombre.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
-        txtNombre.setAlignmentX(Component.LEFT_ALIGNMENT);
-        txtNombre.addFocusListener(new FocusAdapter() {
-            @Override public void focusGained(FocusEvent e) {
-                if (txtNombre.getText().equals("Tu nombre completo")) {
-                    txtNombre.setText("");
-                    txtNombre.setForeground(Color.BLACK);
-                }
-            }
-            @Override public void focusLost(FocusEvent e) {
-                if (txtNombre.getText().isEmpty()) {
-                    txtNombre.setText("Tu nombre completo");
-                    txtNombre.setForeground(TEXTO_GRIS);
-                }
-            }
-        });
-        card.add(txtNombre);
-        card.add(Box.createVerticalStrut(20));
-
-        // Botón Registrar e Iniciar
-        JButton btnRegistrar = new JButton("Registrar e Iniciar  →") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getModel().isPressed() ? VERDE_OSCURO.darker() : VERDE_BTN);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 14, 14));
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btnRegistrar = new JButton("Registrarse");
+        btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnRegistrar.setBackground(new Color(52, 152, 219)); // Azul brillante
         btnRegistrar.setForeground(Color.WHITE);
-        btnRegistrar.setOpaque(false);
-        btnRegistrar.setContentAreaFilled(false);
-        btnRegistrar.setBorderPainted(false);
         btnRegistrar.setFocusPainted(false);
-        btnRegistrar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
-        btnRegistrar.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btnRegistrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnRegistrar.addActionListener(this::accionRegistrar);
-        card.add(btnRegistrar);
-        card.add(Box.createVerticalStrut(16));
+        panelBotones.add(btnRegistrar);
 
-        // Texto seguro
-        JLabel lblSeguro = new JLabel("⊕  Acceso seguro y oficial Pitch Precision", SwingConstants.CENTER);
-        lblSeguro.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblSeguro.setForeground(TEXTO_GRIS);
-        lblSeguro.setAlignmentX(Component.CENTER_ALIGNMENT);
-        card.add(lblSeguro);
-
-        panelCentro.add(card);
-        panelCentro.add(Box.createVerticalStrut(20));
-
-        // ── FEATURE CARDS ──
-        JPanel panelFeatures = new JPanel(new GridLayout(1, 2, 12, 0));
-        panelFeatures.setOpaque(false);
-        panelFeatures.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
-
-        panelFeatures.add(crearFeatureCard("⚡", "Pagos Rápidos", false));
-        panelFeatures.add(crearFeatureCard("🏆", "Mejores Cuotas", true));
-
-        panelCentro.add(panelFeatures);
-        panelCentro.add(Box.createVerticalStrut(20));
-
-        // ── FOOTER ──
-        JPanel panelFooter = new JPanel();
-        panelFooter.setOpaque(false);
-        panelFooter.setLayout(new BoxLayout(panelFooter, BoxLayout.Y_AXIS));
-
-        JLabel lblIconosFooter = new JLabel("🛡  📷  👤", SwingConstants.CENTER);
-        lblIconosFooter.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
-        lblIconosFooter.setForeground(TEXTO_GRIS);
-        lblIconosFooter.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblCopyright = new JLabel("© 2026 FIFA World Cup™ Betting Partner", SwingConstants.CENTER);
-        lblCopyright.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblCopyright.setForeground(TEXTO_GRIS);
-        lblCopyright.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        panelFooter.add(lblIconosFooter);
-        panelFooter.add(Box.createVerticalStrut(4));
-        panelFooter.add(lblCopyright);
-
-        panelCentro.add(panelFooter);
-
-        panelRaiz.add(panelCentro, BorderLayout.CENTER);
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
     }
 
-    private JPanel crearFeatureCard(String icono, String texto, boolean destacado) {
-        JPanel p = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(destacado ? AMARILLO_SUAVE : CARD_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.dispose();
-            }
-        };
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setOpaque(false);
-        p.setBorder(new EmptyBorder(16, 12, 16, 12));
+    private void accionIngresar(ActionEvent e) {
+        String cedula = txtCedula.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
+        if (cedula.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingresa tu cédula y tu contraseña.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-        JLabel lblIcono = new JLabel(icono, SwingConstants.CENTER);
-        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 22));
-        lblIcono.setForeground(destacado ? AMARILLO.darker() : VERDE_OSCURO);
-        lblIcono.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblTexto = new JLabel(texto, SwingConstants.CENTER);
-        lblTexto.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblTexto.setForeground(destacado ? new Color(160, 120, 0) : VERDE_OSCURO);
-        lblTexto.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        p.add(lblIcono);
-        p.add(Box.createVerticalStrut(6));
-        p.add(lblTexto);
-        return p;
+        Usuario usuarioLogueado = usuarioControlador.iniciarSesion(cedula, password);
+        if (usuarioLogueado != null) {
+            abrirMenuPrincipal(usuarioLogueado);
+        } else {
+            JOptionPane.showMessageDialog(this, "Cédula o contraseña incorrectas.", "Error de Autenticación", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void accionRegistrar(ActionEvent e) {
-        String nombre = txtNombre.getText().trim();
-        if (nombre.isEmpty() || nombre.equals("Tu nombre completo")) {
-            JOptionPane.showMessageDialog(this, "Por favor ingresa tu nombre.", "Atención", JOptionPane.WARNING_MESSAGE);
+        String cedula = txtCedula.getText().trim();
+        if (cedula.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, escribe la Cédula que deseas registrar en el campo superior.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Usuario usuario = usuarioControlador.ingresarORegistrarUsuario(nombre);
-        if (usuario != null) {
-            abrirMenuPrincipal(usuario);
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar. Intenta de nuevo.", "Error", JOptionPane.ERROR_MESSAGE);
+
+        // Verificar si la cédula ya existe en la base de datos
+        if (usuarioControlador.existeCedula(cedula)) {
+            JOptionPane.showMessageDialog(this, "Esta cédula ya se encuentra registrada por otro usuario.", "Cédula Duplicada", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Crear panel con campos para Nombre y Contraseña
+        JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
+        JTextField txtNombre = new JTextField();
+        JPasswordField txtRegPassword = new JPasswordField();
+        
+        panel.add(new JLabel("Nombre Completo:"));
+        panel.add(txtNombre);
+        panel.add(new JLabel("Nueva Contraseña:"));
+        panel.add(txtRegPassword);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Registro de Nuevo Apostador", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return; // El usuario canceló el diálogo
+        }
+
+        String nombre = txtNombre.getText().trim();
+        String password = new String(txtRegPassword.getPassword()).trim();
+
+        if (nombre.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El nombre y la contraseña no pueden estar vacíos.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Verificar si el nombre de usuario ya existe
+        if (usuarioControlador.existeNombre(nombre)) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario '" + nombre + "' ya está registrado por otra persona. Por favor elige otro.", "Nombre Duplicado", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Registrar usuario
+        try {
+            Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula, password);
+            if (usuario != null) {
+                JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                abrirMenuPrincipal(usuario);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al registrar el usuario en el sistema.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error de base de datos al registrar: " + ex.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
