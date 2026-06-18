@@ -75,7 +75,7 @@ public class UsuarioDAO {
         return null;
     }
 
-    public Usuario registrar(String nombre, String cedula, String passwordHash) {
+    public Usuario registrar(String nombre, String cedula, String passwordHash) throws SQLException {
         String sqlInsert = "INSERT INTO apostadores (nombre, cedula, password, rol_id) VALUES (?, ?, ?, 2)"; // 2 is 'USUARIO'
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlInsert)) {
@@ -83,9 +83,6 @@ public class UsuarioDAO {
             pstmt.setString(2, cedula);
             pstmt.setString(3, passwordHash);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Error al registrar usuario: " + e.getMessage());
-            return null;
         }
 
         // Recuperar el usuario creado/existente con su ID
@@ -98,8 +95,6 @@ public class UsuarioDAO {
                     return new Usuario(rs.getInt("id"), rs.getString("nombre"), rs.getString("cedula"), rs.getString("rol"));
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("Error al recuperar usuario registrado: " + e.getMessage());
         }
         return null;
     }

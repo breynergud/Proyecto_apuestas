@@ -155,12 +155,17 @@ public class Login extends JFrame {
         }
 
         // Registrar usuario
-        Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula, password);
-        if (usuario != null) {
-            JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            abrirMenuPrincipal(usuario);
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar el usuario en el sistema.", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula, password);
+            if (usuario != null) {
+                JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                abrirMenuPrincipal(usuario);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al registrar el usuario en el sistema.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error de base de datos al registrar: " + ex.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
