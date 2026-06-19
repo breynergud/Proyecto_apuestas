@@ -32,6 +32,7 @@ public class MenuPrincipal extends JFrame {
 
         setTitle("Quiniela Mundial 2026 - Dashboard");
         setSize(1000, 650);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
