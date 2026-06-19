@@ -89,9 +89,11 @@ public class UIStyleUtil {
                             int val = Integer.parseInt(proposedText);
                             if (val <= max) {
                                 super.insertString(fb, offset, string, attr);
+                            } else {
+                                mostrarAlertaExcedido(max);
                             }
                         } catch (NumberFormatException e) {
-                            // Ignorar si no se puede parsear
+                            mostrarAlertaExcedido(max);
                         }
                     }
                 }
@@ -111,9 +113,11 @@ public class UIStyleUtil {
                             int val = Integer.parseInt(proposedText);
                             if (val <= max) {
                                 super.replace(fb, offset, length, text, attrs);
+                            } else {
+                                mostrarAlertaExcedido(max);
                             }
                         } catch (NumberFormatException e) {
-                            // Ignorar
+                            mostrarAlertaExcedido(max);
                         }
                     }
                 }
@@ -136,6 +140,18 @@ public class UIStyleUtil {
 
             ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
         }
+    }
+
+    private static void mostrarAlertaExcedido(int max) {
+        Toolkit.getDefaultToolkit().beep();
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                null,
+                "El marcador no puede ser mayor a " + max + " goles.",
+                "Límite excedido",
+                JOptionPane.WARNING_MESSAGE
+            );
+        });
     }
 
     public static void styleTable(JTable table) {
