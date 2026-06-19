@@ -119,111 +119,11 @@ public class Login extends JFrame {
     }
 
     private void accionRegistrar(ActionEvent e) {
-        String cedula = txtCedula.getText().trim();
-        if (cedula.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, escribe la Cédula que deseas registrar en el campo superior.", "Atención", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        if (!cedula.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "La cédula debe contener únicamente números.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Verificar si la cédula ya existe en la base de datos
-        if (usuarioControlador.existeCedula(cedula)) {
-            JOptionPane.showMessageDialog(this, "Esta cédula ya se encuentra registrada por otro usuario.", "Cédula Duplicada", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Crear panel con campos para Nombre y Contraseña
-        JPanel panel = new JPanel(new GridLayout(2, 2, 8, 8));
-        panel.setBackground(new Color(30, 30, 36));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        JLabel lblNombre = new JLabel("Nombre Completo:");
-        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblNombre.setForeground(Color.LIGHT_GRAY);
-
-        JTextField txtNombre = new JTextField();
-        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        txtNombre.setBackground(new Color(45, 45, 52));
-        txtNombre.setForeground(Color.WHITE);
-        txtNombre.setCaretColor(Color.WHITE);
-        txtNombre.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(60, 60, 70), 1),
-            BorderFactory.createEmptyBorder(4, 6, 4, 6)
-        ));
-
-        JLabel lblRegPassword = new JLabel("Nueva Contraseña:");
-        lblRegPassword.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblRegPassword.setForeground(Color.LIGHT_GRAY);
-
-        JPasswordField txtRegPassword = new JPasswordField();
-        txtRegPassword.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        txtRegPassword.setBackground(new Color(45, 45, 52));
-        txtRegPassword.setForeground(Color.WHITE);
-        txtRegPassword.setCaretColor(Color.WHITE);
-        txtRegPassword.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(60, 60, 70), 1),
-            BorderFactory.createEmptyBorder(4, 6, 4, 6)
-        ));
-        
-        panel.add(lblNombre);
-        panel.add(txtNombre);
-        panel.add(lblRegPassword);
-        panel.add(txtRegPassword);
-
-        int result = JOptionPane.showConfirmDialog(this, panel, "Registro de Nuevo Apostador", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) {
-            return; // El usuario canceló el diálogo
-        }
-
-        String nombre = txtNombre.getText().trim();
-        String password = new String(txtRegPassword.getPassword()).trim();
-
-        if (nombre.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre y la contraseña no pueden estar vacíos.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (nombre.length() < 3) {
-            JOptionPane.showMessageDialog(this, "El nombre completo debe tener al menos 3 caracteres.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
-            JOptionPane.showMessageDialog(this, "El nombre debe contener únicamente letras y espacios.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (password.length() < 4) {
-            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 4 caracteres por seguridad.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Verificar si el nombre de usuario ya existe
-        if (usuarioControlador.existeNombre(nombre)) {
-            JOptionPane.showMessageDialog(this, "El nombre de usuario '" + nombre + "' ya está registrado por otra persona. Por favor elige otro.", "Nombre Duplicado", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Registrar usuario
-        try {
-            Usuario usuario = usuarioControlador.registrarUsuario(nombre, cedula, password);
-            if (usuario != null) {
-                JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                abrirMenuPrincipal(usuario);
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al registrar el usuario en el sistema.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error de base de datos al registrar: " + ex.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
-        }
+        Registro dialog = new Registro(this);
+        dialog.setVisible(true);
     }
 
-    private void abrirMenuPrincipal(Usuario usuario) {
+    public void abrirMenuPrincipal(Usuario usuario) {
         SwingUtilities.invokeLater(() -> {
             MenuPrincipal menu = new MenuPrincipal(usuario);
             menu.setVisible(true);
