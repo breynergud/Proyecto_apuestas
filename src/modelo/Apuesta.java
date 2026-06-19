@@ -41,14 +41,6 @@ public class Apuesta {
         return partidoId;
     }
 
-    public int getGolesLocalApuesta() {
-        return golesLocalApuesta;
-    }
-
-    public int getGolesVisitanteApuesta() {
-        return golesVisitanteApuesta;
-    }
-
     public String getNombreApostador() {
         return nombreApostador;
     }
