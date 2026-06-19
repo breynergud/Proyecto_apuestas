@@ -1,6 +1,7 @@
 package dao;
 
 import modelo.Usuario;
+import util.HashUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,15 +59,17 @@ public class UsuarioDAO {
         return false;
     }
 
-    public Usuario validarIngreso(String cedula, String passwordHash) {
-        String sql = "SELECT a.id, a.nombre, a.cedula, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id WHERE a.cedula = ? AND a.password = ?";
+    public Usuario validarIngreso(String cedula, String plainPassword) {
+        String sql = "SELECT a.id, a.nombre, a.cedula, a.password, r.nombre AS rol FROM apostadores a JOIN roles r ON a.rol_id = r.id WHERE a.cedula = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, cedula);
-            pstmt.setString(2, passwordHash);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Usuario(rs.getInt("id"), rs.getString("nombre"), rs.getString("cedula"), rs.getString("rol"));
+                    String storedHash = rs.getString("password");
+                    if (HashUtil.checkPassword(plainPassword, storedHash)) {
+                        return new Usuario(rs.getInt("id"), rs.getString("nombre"), rs.getString("cedula"), rs.getString("rol"));
+                    }
                 }
             }
         } catch (SQLException e) {

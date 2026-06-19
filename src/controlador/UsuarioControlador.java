@@ -20,8 +20,7 @@ public class UsuarioControlador {
         if (cedula == null || cedula.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return null;
         }
-        String passwordHash = HashUtil.hashPassword(password.trim());
-        return usuarioDAO.validarIngreso(cedula.trim(), passwordHash);
+        return usuarioDAO.validarIngreso(cedula.trim(), password.trim());
     }
 
     public Usuario registrarUsuario(String nombre, String cedula, String password) throws java.sql.SQLException {
