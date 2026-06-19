@@ -43,7 +43,11 @@ public class ApuestaControlador {
     }
 
     public List<Object[]> obtenerHistorialApuestas() {
-        return apuestaDAO.obtenerHistorial();
+        return obtenerHistorialApuestas("Todos", "Todos");
+    }
+
+    public List<Object[]> obtenerHistorialApuestas(String apostador, String grupo) {
+        return apuestaDAO.obtenerHistorial(apostador, grupo);
     }
 
     public List<Apuesta> obtenerTodasLasApuestas() {
