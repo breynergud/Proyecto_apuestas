@@ -70,7 +70,7 @@ CREATE TABLE apostadores (
 );
 
 -- Insertar administrador por defecto (la contraseña inicial es su cédula: '1093595196')
-INSERT INTO apostadores (nombre, cedula, password, rol_id) VALUES ('Admin', '1093595196', SHA2('1093595196', 256), 1) 
+INSERT INTO apostadores (nombre, cedula, password, rol_id) VALUES ('Admin', '1093595196', '$2a$10$07PMkiqz9wmsxmosBke3Dui8x.E5ni49E3sN43VMwCvr6k1sd9vta', 1) 
 ON DUPLICATE KEY UPDATE cedula=VALUES(cedula), password=VALUES(password), rol_id=VALUES(rol_id);
 
 
