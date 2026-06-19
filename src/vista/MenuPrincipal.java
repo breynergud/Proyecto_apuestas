@@ -741,34 +741,7 @@ public class MenuPrincipal extends JFrame {
     }
 
     private static boolean haPasadoFecha(String fechaStr) {
-        if (fechaStr == null || fechaStr.isEmpty()) return false;
-        try {
-            String[] partes = fechaStr.toLowerCase().split(" de ");
-            if (partes.length < 2) return false;
-            
-            int dia = Integer.parseInt(partes[0].trim());
-            String mesNombre = partes[1].trim();
-            
-            int mes = 6; // Por defecto Junio
-            if (mesNombre.contains("enero")) mes = 1;
-            else if (mesNombre.contains("febrero")) mes = 2;
-            else if (mesNombre.contains("marzo")) mes = 3;
-            else if (mesNombre.contains("abril")) mes = 4;
-            else if (mesNombre.contains("mayo")) mes = 5;
-            else if (mesNombre.contains("junio")) mes = 6;
-            else if (mesNombre.contains("julio")) mes = 7;
-            else if (mesNombre.contains("agosto")) mes = 8;
-            else if (mesNombre.contains("septiembre")) mes = 9;
-            else if (mesNombre.contains("octubre")) mes = 10;
-            else if (mesNombre.contains("noviembre")) mes = 11;
-            else if (mesNombre.contains("diciembre")) mes = 12;
-            
-            java.time.LocalDate hoy = java.time.LocalDate.now();
-            java.time.LocalDate fechaPartido = java.time.LocalDate.of(hoy.getYear(), mes, dia);
-            return hoy.isAfter(fechaPartido);
-        } catch (Exception e) {
-            return false;
-        }
+        return false;
     }
 
     // ── PANEL RESULTADOS ─────────────────────────────────────────────────────
@@ -943,8 +916,8 @@ public class MenuPrincipal extends JFrame {
         JComponent editor = spinner.getEditor();
         if (editor instanceof JSpinner.DefaultEditor) {
             JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
-            javax.swing.text.AbstractDocument doc = (javax.swing.text.AbstractDocument) txt.getDocument();
-            doc.setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            
+            javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
                 @Override
                 public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
                     if (string != null && string.matches("\\d+")) {
@@ -958,7 +931,23 @@ public class MenuPrincipal extends JFrame {
                         super.replace(fb, offset, length, text, attrs);
                     }
                 }
+            };
+            
+            txt.addPropertyChangeListener("formatter", evt -> {
+                ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
             });
+            
+            txt.addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyTyped(java.awt.event.KeyEvent e) {
+                    char c = e.getKeyChar();
+                    if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE && c != java.awt.event.KeyEvent.VK_DELETE) {
+                        e.consume();
+                    }
+                }
+            });
+            
+            ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
         }
     }
 
