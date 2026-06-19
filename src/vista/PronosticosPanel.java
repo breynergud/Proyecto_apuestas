@@ -137,10 +137,10 @@ public class PronosticosPanel extends JPanel {
             fecha.setForeground(UIStyleUtil.TEXTO_GRIS);
             add(fecha);
 
-            int vL = prev != null ? prev.getGolesLocal() : 0;
-            int vV = prev != null ? prev.getGolesVisitante() : 0;
-            spinLocal  = new JSpinner(new SpinnerNumberModel(vL, 0, 20, 1));
-            spinVisita = new JSpinner(new SpinnerNumberModel(vV, 0, 20, 1));
+            int vL = Math.min(prev != null ? prev.getGolesLocal() : 0, 15);
+            int vV = Math.min(prev != null ? prev.getGolesVisitante() : 0, 15);
+            spinLocal  = new JSpinner(new SpinnerNumberModel(vL, 0, 15, 1));
+            spinVisita = new JSpinner(new SpinnerNumberModel(vV, 0, 15, 1));
             UIStyleUtil.configurarSoloNumeros(spinLocal);
             UIStyleUtil.configurarSoloNumeros(spinVisita);
             UIStyleUtil.styleSpinner(spinLocal);
