@@ -842,6 +842,26 @@ public class MenuPrincipal extends JFrame {
             chk.setOpaque(false);
             chk.setForeground(VERDE_OSCURO);
             add(chk);
+
+            // Seleccionar "Finalizado" automáticamente al cambiar los goles (flechas o texto)
+            javax.swing.event.ChangeListener autoCheck = e -> chk.setSelected(true);
+            spinLocal.addChangeListener(autoCheck);
+            spinVisita.addChangeListener(autoCheck);
+
+            if (spinLocal.getEditor() instanceof JSpinner.DefaultEditor) {
+                ((JSpinner.DefaultEditor) spinLocal.getEditor()).getTextField().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                    public void insertUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                    public void removeUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                    public void changedUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                });
+            }
+            if (spinVisita.getEditor() instanceof JSpinner.DefaultEditor) {
+                ((JSpinner.DefaultEditor) spinVisita.getEditor()).getTextField().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                    public void insertUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                    public void removeUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                    public void changedUpdate(javax.swing.event.DocumentEvent e) { chk.setSelected(true); }
+                });
+            }
         }
 
         int getPartidoId()        { return partidoId; }
