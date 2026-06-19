@@ -51,29 +51,55 @@ public class ApuestaDAO {
         return null;
     }
 
-    /**
-     * Recupera el historial de creación de apuestas/pronósticos de todos los usuarios.
-     * @return Una lista de filas con los registros del historial para mostrar en una tabla
-     */
     public List<Object[]> obtenerHistorial() {
+        return obtenerHistorial("Todos", "Todos");
+    }
+
+    public List<Object[]> obtenerHistorial(String apostadorFilter, String grupoFilter) {
         List<Object[]> lista = new ArrayList<>();
-        String sql = "SELECT id, apostador, partido, goles_local_apuesta, goles_visitante_apuesta, fecha_registro, accion " +
-                     "FROM historial_apuestas ORDER BY fecha_registro DESC";
+        StringBuilder sql = new StringBuilder(
+            "SELECT h.id, h.apostador, h.partido, h.goles_local_apuesta, h.goles_visitante_apuesta, h.fecha_registro, h.accion " +
+            "FROM historial_apuestas h " +
+            "LEFT JOIN apuestas a ON h.apuesta_id = a.id " +
+            "LEFT JOIN partidos p ON a.partido_id = p.id " +
+            "WHERE 1=1 "
+        );
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (apostadorFilter != null && !apostadorFilter.equalsIgnoreCase("Todos")) {
+            sql.append("AND h.apostador = ? ");
+            params.add(apostadorFilter);
+        }
+        
+        if (grupoFilter != null && !grupoFilter.equalsIgnoreCase("Todos")) {
+            sql.append("AND p.grupo_id = ? ");
+            params.add(grupoFilter);
+        }
+        
+        sql.append("ORDER BY h.fecha_registro DESC");
+        
         try (Connection conn = ConexionBD.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                lista.add(new Object[]{
-                    rs.getInt("id"),
-                    rs.getString("apostador"),
-                    rs.getString("partido"),
-                    rs.getInt("goles_local_apuesta") + " - " + rs.getInt("goles_visitante_apuesta"),
-                    rs.getTimestamp("fecha_registro"),
-                    rs.getString("accion")
-                });
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+             
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("apostador"),
+                        rs.getString("partido"),
+                        rs.getInt("goles_local_apuesta") + " - " + rs.getInt("goles_visitante_apuesta"),
+                        rs.getTimestamp("fecha_registro"),
+                        rs.getString("accion")
+                    });
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener historial de apuestas: " + e.getMessage());
+            System.err.println("Error al obtener historial de apuestas filtrado: " + e.getMessage());
         }
         return lista;
     }
