@@ -51,4 +51,8 @@ public class UsuarioControlador {
     public List<Object[]> obtenerTablaPosiciones() {
         return usuarioDAO.obtenerRanking();
     }
+
+    public Object[] obtenerPuntosYRankUsuario(int usuarioId) {
+        return usuarioDAO.obtenerPuntosYRankUsuario(usuarioId);
+    }
 }

@@ -133,18 +133,21 @@ SELECT
     a.nombre AS apostador,
     COALESCE(SUM(
         CASE 
-            -- 1. Acierto de marcador exacto: +5 puntos
+            -- 1. Acierto de marcador exacto: 3 puntos
             WHEN ap.goles_local_apuesta = p.goles_local 
              AND ap.goles_visitante_apuesta = p.goles_visitante 
-                THEN 5
-            
-            -- 2. Acierto del ganador o empate (pero no marcador exacto): +3 puntos
-            WHEN (p.goles_local > p.goles_visitante AND ap.goles_local_apuesta > ap.goles_visitante_apuesta)
-              OR (p.goles_visitante > p.goles_local AND ap.goles_visitante_apuesta > ap.goles_local_apuesta)
-              OR (p.goles_local = p.goles_visitante AND ap.goles_local_apuesta = ap.goles_visitante_apuesta)
                 THEN 3
             
-            -- 3. No acertó o partido aún no jugado: 0 puntos
+            -- 2. Acierto del ganador (no exacto): 2 puntos
+            WHEN ((p.goles_local > p.goles_visitante AND ap.goles_local_apuesta > ap.goles_visitante_apuesta)
+              OR (p.goles_visitante > p.goles_local AND ap.goles_visitante_apuesta > ap.goles_local_apuesta))
+                THEN 2
+            
+            -- 3. Acierto del empate (no exacto): 1 punto
+            WHEN (p.goles_local = p.goles_visitante AND ap.goles_local_apuesta = ap.goles_visitante_apuesta)
+                THEN 1
+            
+            -- 4. No acertó o partido aún no jugado: 0 puntos
             ELSE 0 
         END
     ), 0) AS puntos_totales

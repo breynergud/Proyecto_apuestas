@@ -85,9 +85,11 @@ public class ApuestaDAO {
                      "a.goles_local_apuesta, a.goles_visitante_apuesta " +
                      "FROM apuestas a " +
                      "JOIN apostadores ap ON a.apostador_id = ap.id " +
+                     "JOIN roles ro ON ap.rol_id = ro.id " +
                      "JOIN partidos p ON a.partido_id = p.id " +
                      "JOIN equipos el ON p.local_id = el.id " +
                      "JOIN equipos ev ON p.visitante_id = ev.id " +
+                     "WHERE ro.nombre != 'ADMINISTRADOR' " +
                      "ORDER BY ap.nombre, el.nombre";
         try (Connection conn = ConexionBD.getConnection();
              Statement stmt = conn.createStatement();

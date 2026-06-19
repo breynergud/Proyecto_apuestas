@@ -34,7 +34,7 @@ public class Login extends JFrame {
         setContentPane(panelPrincipal);
 
         // Header / Título
-        JLabel lblTitulo = new JLabel("POOLS MUNDIAL 2026", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("APUESTAS MUNDIAL 2026", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(46, 204, 113)); // Verde brillante fútbol
         panelPrincipal.add(lblTitulo, BorderLayout.NORTH);
@@ -101,12 +101,14 @@ public class Login extends JFrame {
         String cedula = txtCedula.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
         if (cedula.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, ingresa tu cédula y tu contraseña.", "Atención", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Por favor, ingresa tu cédula y tu contraseña.", "Atención",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (!cedula.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "La cédula debe contener únicamente números.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "La cédula debe contener únicamente números.", "Error de Validación",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -114,7 +116,8 @@ public class Login extends JFrame {
         if (usuarioLogueado != null) {
             abrirMenuPrincipal(usuarioLogueado);
         } else {
-            JOptionPane.showMessageDialog(this, "Cédula o contraseña incorrectas.", "Error de Autenticación", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Cédula o contraseña incorrectas.", "Error de Autenticación",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

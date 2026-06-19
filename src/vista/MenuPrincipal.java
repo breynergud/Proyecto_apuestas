@@ -17,17 +17,17 @@ import java.util.List;
 
 public class MenuPrincipal extends JFrame {
 
-    private static final Color SIDEBAR_BG    = new Color(30, 30, 36);   // Dark charcoal sidebar bg
-    private static final Color VERDE_OSCURO  = new Color(46, 204, 113); // Emerald green for text/labels
-    private static final Color VERDE_BTN     = new Color(46, 204, 113);  // Emerald green accent / buttons
-    private static final Color AMARILLO      = new Color(46, 204, 113);  // Selected text/tab highlight
-    private static final Color FONDO         = new Color(30, 30, 36);   // Main charcoal background
-    private static final Color CARD_BG       = new Color(45, 45, 52);   // Card charcoal background
-    private static final Color TEXTO_GRIS    = new Color(180, 180, 180); // Light gray secondary text
-    private static final Color ROJO_LIVE     = new Color(231, 76, 60);   // Bright red for Live indicator
-    private static final Color VERDE_OK      = new Color(46, 204, 113);  // Emerald green success indicator
-    private static final Color AMARILLO_WARN = new Color(241, 196, 15);  // Bright yellow warning indicator
-    private static final Color AMARILLO_SUAVE= new Color(55, 55, 62);    // Highlight row bg (dark)
+    private static final Color SIDEBAR_BG    = new Color(20, 60, 30);   // Deep green sidebar bg
+    private static final Color VERDE_OSCURO  = new Color(20, 60, 30);   // Deep green for text/labels
+    private static final Color VERDE_BTN     = new Color(22, 68, 35);   // Deep green accent / buttons
+    private static final Color AMARILLO      = new Color(230, 190, 40); // Gold yellow select text
+    private static final Color FONDO         = new Color(242, 244, 240); // Light main background
+    private static final Color CARD_BG       = Color.WHITE;             // White card background
+    private static final Color TEXTO_GRIS    = new Color(110, 110, 110); // Gray secondary text
+    private static final Color ROJO_LIVE     = new Color(210, 50, 50);   // Bright red
+    private static final Color VERDE_OK      = new Color(39, 174, 96);   // Emerald green success
+    private static final Color AMARILLO_WARN = new Color(200, 150, 10);  // Gold yellow warning
+    private static final Color AMARILLO_SUAVE= new Color(255, 248, 210); // Highlight row bg (light yellow)
 
     private Usuario usuarioLogueado;
     private UsuarioControlador usuarioControlador;
@@ -64,6 +64,9 @@ public class MenuPrincipal extends JFrame {
     private JPanel panelContenido;
     // Navbar botones
     private JButton[] navBtns;
+
+    private JLabel lblPuntos;
+    private JLabel lblRango;
 
     public MenuPrincipal(Usuario usuario) {
         this.usuarioLogueado = usuario;
@@ -111,7 +114,7 @@ public class MenuPrincipal extends JFrame {
 
         JPanel izq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         izq.setOpaque(false);
-        JLabel lblLogo = new JLabel("⚽");
+        JLabel lblLogo = new JLabel("");
         lblLogo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
         JLabel lblTitulo = new JLabel("WC 2026");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -139,9 +142,10 @@ public class MenuPrincipal extends JFrame {
         JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         der.setOpaque(false);
 
-        JButton btnLogout = new JButton("🚪");
-        btnLogout.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        JButton btnLogout = new JButton("Salir");
+        btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnLogout.setToolTipText("Cerrar Sesión");
+        btnLogout.setForeground(VERDE_OSCURO);
         btnLogout.setOpaque(false);
         btnLogout.setContentAreaFilled(false);
         btnLogout.setBorderPainted(false);
@@ -164,7 +168,7 @@ public class MenuPrincipal extends JFrame {
         mainPanel.setBackground(FONDO);
         mainPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
 
-        // LEFT COLUMN (Greeting + Stats + Quick Actions)
+        // LEFT COLUMN (Greeting + Stats + Quick Actions) - Now expanded to full width
         JPanel colLeft = new JPanel();
         colLeft.setLayout(new BoxLayout(colLeft, BoxLayout.Y_AXIS));
         colLeft.setOpaque(false);
@@ -197,7 +201,7 @@ public class MenuPrincipal extends JFrame {
         badge.setOpaque(false);
         badge.setMaximumSize(new Dimension(150, 32));
         badge.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JLabel lblBadge = new JLabel("⭐  PRO MEMBER");
+        JLabel lblBadge = new JLabel("PRO MEMBER");
         lblBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblBadge.setForeground(VERDE_OSCURO);
         badge.add(lblBadge);
@@ -215,15 +219,15 @@ public class MenuPrincipal extends JFrame {
         JPanel cardPuntos = card();
         cardPuntos.setLayout(new BoxLayout(cardPuntos, BoxLayout.Y_AXIS));
         cardPuntos.setBorder(new EmptyBorder(16, 20, 16, 20));
-        JLabel lblPLabel = new JLabel("TUS PUNTOS  🎯");
+        JLabel lblPLabel = new JLabel("TUS PUNTOS");
         lblPLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblPLabel.setForeground(TEXTO_GRIS);
-        JLabel lblPuntos = new JLabel("1,250");
+        lblPuntos = new JLabel("0");
         lblPuntos.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblPuntos.setForeground(VERDE_OSCURO);
-        JLabel lblPChange = new JLabel("+12% vs ayer");
+        JLabel lblPChange = new JLabel("Puntos acumulados");
         lblPChange.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblPChange.setForeground(VERDE_OK);
+        lblPChange.setForeground(TEXTO_GRIS);
         cardPuntos.add(lblPLabel); cardPuntos.add(Box.createVerticalStrut(4));
         cardPuntos.add(lblPuntos); cardPuntos.add(lblPChange);
 
@@ -231,13 +235,13 @@ public class MenuPrincipal extends JFrame {
         JPanel cardRango = card();
         cardRango.setLayout(new BoxLayout(cardRango, BoxLayout.Y_AXIS));
         cardRango.setBorder(new EmptyBorder(16, 20, 16, 20));
-        JLabel lblRLabel = new JLabel("RANGO ACTUAL  🏆");
+        JLabel lblRLabel = new JLabel("RANGO ACTUAL");
         lblRLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblRLabel.setForeground(TEXTO_GRIS);
-        JLabel lblRango = new JLabel("#42");
+        lblRango = new JLabel("S/R");
         lblRango.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblRango.setForeground(VERDE_OSCURO);
-        JLabel lblRSub = new JLabel("Top 5% Global");
+        JLabel lblRSub = new JLabel("Posición actual");
         lblRSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblRSub.setForeground(TEXTO_GRIS);
         cardRango.add(lblRLabel); cardRango.add(Box.createVerticalStrut(4));
@@ -255,152 +259,39 @@ public class MenuPrincipal extends JFrame {
         colLeft.add(lblAcciones);
         colLeft.add(Box.createVerticalStrut(12));
 
-        JPanel gridAcciones;
-        if (usuarioLogueado.esAdministrador()) {
-            gridAcciones = new JPanel(new GridLayout(3, 2, 12, 12));
-            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
-        } else {
-            gridAcciones = new JPanel(new GridLayout(2, 2, 12, 12));
-            gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
-        }
+        JPanel gridAcciones = new JPanel(new GridLayout(2, 2, 12, 12));
+        gridAcciones.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         gridAcciones.setOpaque(false);
         gridAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        gridAcciones.add(accionCard("👥", "Ver Grupos",         false, e -> mostrarTab("pronosticos", 1)));
-        gridAcciones.add(accionCard("📊", "Consultar\nPosiciones", false, e -> mostrarTab("posiciones", 3)));
-        gridAcciones.add(accionCard("🎯", "Mis Apuestas",       false, e -> mostrarTab("apuestas", 2)));
-        
         if (usuarioLogueado.esAdministrador()) {
-            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", false,  e -> mostrarTab("resultados", 4)));
-            gridAcciones.add(accionCard("📋",  "Historial Auditoría", false,  e -> {
+            gridAcciones.add(accionCard("Gestionar\nPartidos", false,  e -> mostrarTab("resultados", 3)));
+            gridAcciones.add(accionCard("Consultar\nPosiciones", false, e -> mostrarTab("posiciones", 2)));
+            gridAcciones.add(accionCard("Ver Todas Apuestas",  false,  e -> mostrarTab("apuestas", 1)));
+            gridAcciones.add(accionCard("Historial Auditoría", false,  e -> {
                 actualizarHistorialTable();
                 ((CardLayout) panelContenido.getLayout()).show(panelContenido, "historial");
                 if (navBtns != null) {
                     for (JButton btn : navBtns) btn.setForeground(new Color(190, 220, 190));
                 }
             }));
-            gridAcciones.add(accionCard("🔧",  "Ver Todas Apuestas",  false,  e -> mostrarTab("apuestas", 2)));
         } else {
-            gridAcciones.add(accionCard("⚙️",  "Gestionar\nPartidos", true,   e -> JOptionPane.showMessageDialog(this, "Sólo disponible para Administradores.", "Restringido", JOptionPane.WARNING_MESSAGE)));
+            gridAcciones.add(accionCard("Ver Grupos",         false, e -> mostrarTab("pronosticos", 1)));
+            gridAcciones.add(accionCard("Consultar\nPosiciones", false, e -> mostrarTab("posiciones", 3)));
+            gridAcciones.add(accionCard("Mis Apuestas",       false, e -> mostrarTab("apuestas", 2)));
+            gridAcciones.add(accionCard("Gestionar\nPartidos", true,   e -> JOptionPane.showMessageDialog(this, "Sólo disponible para Administradores.", "Restringido", JOptionPane.WARNING_MESSAGE)));
         }
         colLeft.add(gridAcciones);
 
-        // RIGHT COLUMN (Live Match + final predictions banner + featured match)
-        JPanel colRight = new JPanel();
-        colRight.setLayout(new BoxLayout(colRight, BoxLayout.Y_AXIS));
-        colRight.setOpaque(false);
-
-        // Card LIVE NOW
-        JPanel cardLive = card();
-        cardLive.setLayout(new BorderLayout(10, 6));
-        cardLive.setBorder(new EmptyBorder(16, 20, 16, 20));
-        cardLive.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
-        cardLive.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel liveTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        liveTop.setOpaque(false);
-        JLabel dotLive = new JLabel("● LIVE NOW");
-        dotLive.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        dotLive.setForeground(ROJO_LIVE);
-        liveTop.add(dotLive);
-        cardLive.add(liveTop, BorderLayout.NORTH);
-
-        JLabel lblLiveMatch = new JLabel("BRA v GER");
-        lblLiveMatch.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblLiveMatch.setForeground(VERDE_OSCURO);
-        cardLive.add(lblLiveMatch, BorderLayout.CENTER);
-
-        JButton btnVerPartido = new JButton("Ver partido  >");
-        btnVerPartido.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnVerPartido.setForeground(VERDE_OSCURO);
-        btnVerPartido.setBackground(FONDO);
-        btnVerPartido.setBorderPainted(false);
-        btnVerPartido.setFocusPainted(false);
-        btnVerPartido.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnVerPartido.addActionListener(e -> mostrarTab("pronosticos", 1));
-        cardLive.add(btnVerPartido, BorderLayout.SOUTH);
-        
-        colRight.add(cardLive);
-        colRight.add(Box.createVerticalStrut(16));
-
-        // Banner predicciones finales
-        JPanel banner = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new GradientPaint(0, 0, VERDE_OSCURO, getWidth(), getHeight(), new Color(30, 90, 45)));
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 18, 18));
-                g2.dispose();
-            }
-        };
-        banner.setLayout(new BoxLayout(banner, BoxLayout.Y_AXIS));
-        banner.setOpaque(false);
-        banner.setBorder(new EmptyBorder(16, 20, 16, 20));
-        banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
-        banner.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel lblTrophy = new JLabel("🏆", SwingConstants.CENTER);
-        lblTrophy.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
-        lblTrophy.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblBannerTitle = new JLabel("Predicciones Finales", SwingConstants.CENTER);
-        lblBannerTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblBannerTitle.setForeground(Color.WHITE);
-        lblBannerTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblBannerSub = new JLabel("<html><center>Gana el triple de puntos acertando al<br>campeón del grupo D.</center></html>", SwingConstants.CENTER);
-        lblBannerSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblBannerSub.setForeground(new Color(180, 210, 180));
-        lblBannerSub.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton btnApostar = new JButton("APOSTAR AHORA") {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(AMARILLO);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnApostar.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnApostar.setForeground(VERDE_OSCURO);
-        btnApostar.setOpaque(false); btnApostar.setContentAreaFilled(false);
-        btnApostar.setBorderPainted(false); btnApostar.setFocusPainted(false);
-        btnApostar.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnApostar.setMaximumSize(new Dimension(160, 34));
-        btnApostar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnApostar.addActionListener(e -> mostrarTab("pronosticos", 1));
-
-        banner.add(lblTrophy); banner.add(Box.createVerticalStrut(4));
-        banner.add(lblBannerTitle); banner.add(Box.createVerticalStrut(4));
-        banner.add(lblBannerSub); banner.add(Box.createVerticalStrut(10));
-        banner.add(btnApostar);
-        
-        colRight.add(banner);
-        colRight.add(Box.createVerticalStrut(16));
-
-        // Partido Destacado
-        colRight.add(construirPartidoDestacado());
-
-        // GridBagLayout constraints for 2 column layout
+        // GridBagLayout constraints for single column layout
         GridBagConstraints gbcLeft = new GridBagConstraints();
         gbcLeft.gridx = 0;
         gbcLeft.gridy = 0;
-        gbcLeft.weightx = 0.55;
+        gbcLeft.weightx = 1.0;
         gbcLeft.weighty = 1.0;
         gbcLeft.fill = GridBagConstraints.BOTH;
-        gbcLeft.insets = new Insets(0, 0, 0, 10);
+        gbcLeft.insets = new Insets(0, 0, 0, 0);
         mainPanel.add(colLeft, gbcLeft);
-
-        GridBagConstraints gbcRight = new GridBagConstraints();
-        gbcRight.gridx = 1;
-        gbcRight.gridy = 0;
-        gbcRight.weightx = 0.45;
-        gbcRight.weighty = 1.0;
-        gbcRight.fill = GridBagConstraints.BOTH;
-        gbcRight.insets = new Insets(0, 10, 0, 0);
-        mainPanel.add(colRight, gbcRight);
 
         // Put mainPanel inside JScrollPane so it's scrollable if resized too small
         JScrollPane sp = new JScrollPane(mainPanel);
@@ -414,145 +305,37 @@ public class MenuPrincipal extends JFrame {
         return wrapper;
     }
 
-    private JPanel construirPartidoDestacado() {
-        JPanel cardOuter = card();
-        cardOuter.setLayout(new BoxLayout(cardOuter, BoxLayout.Y_AXIS));
-        cardOuter.setBorder(new EmptyBorder(16, 18, 16, 18));
-        cardOuter.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // Header partido destacado
-        JPanel rowTop = new JPanel(new BorderLayout());
-        rowTop.setOpaque(false);
-        JLabel lblPD = new JLabel("PARTIDO DESTACADO");
-        lblPD.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblPD.setForeground(TEXTO_GRIS);
-        JLabel lblLive = new JLabel("● LIVE");
-        lblLive.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblLive.setForeground(ROJO_LIVE);
-        rowTop.add(lblPD, BorderLayout.WEST);
-        rowTop.add(lblLive, BorderLayout.EAST);
-        rowTop.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        cardOuter.add(rowTop);
-        cardOuter.add(Box.createVerticalStrut(12));
-
-        // Equipos y marcador
-        JPanel rowMarcador = new JPanel(new GridLayout(1, 3, 0, 0));
-        rowMarcador.setOpaque(false);
-        rowMarcador.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-
-        // Local
-        JPanel panelLocal = new JPanel();
-        panelLocal.setLayout(new BoxLayout(panelLocal, BoxLayout.Y_AXIS));
-        panelLocal.setOpaque(false);
-        JLabel lblFlagArg = new JLabel("🇦🇷", SwingConstants.CENTER);
-        lblFlagArg.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-        lblFlagArg.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel lblArg = new JLabel("ARG", SwingConstants.CENTER);
-        lblArg.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblArg.setForeground(VERDE_OSCURO);
-        lblArg.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelLocal.add(lblFlagArg); panelLocal.add(lblArg);
-
-        // Marcador central
-        JPanel panelScore = new JPanel();
-        panelScore.setLayout(new BoxLayout(panelScore, BoxLayout.Y_AXIS));
-        panelScore.setOpaque(false);
-        JLabel lblScore = new JLabel("2 - 1", SwingConstants.CENTER);
-        lblScore.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        lblScore.setForeground(VERDE_OSCURO);
-        lblScore.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel lblMin = new JLabel("72' Minutos", SwingConstants.CENTER);
-        lblMin.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblMin.setForeground(TEXTO_GRIS);
-        lblMin.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelScore.add(Box.createVerticalGlue());
-        panelScore.add(lblScore); panelScore.add(lblMin);
-        panelScore.add(Box.createVerticalGlue());
-
-        // Visitante
-        JPanel panelVisita = new JPanel();
-        panelVisita.setLayout(new BoxLayout(panelVisita, BoxLayout.Y_AXIS));
-        panelVisita.setOpaque(false);
-        JLabel lblFlagFra = new JLabel("🇫🇷", SwingConstants.CENTER);
-        lblFlagFra.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-        lblFlagFra.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel lblFra = new JLabel("FRA", SwingConstants.CENTER);
-        lblFra.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblFra.setForeground(VERDE_OSCURO);
-        lblFra.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelVisita.add(lblFlagFra); panelVisita.add(lblFra);
-
-        rowMarcador.add(panelLocal); rowMarcador.add(panelScore); rowMarcador.add(panelVisita);
-        cardOuter.add(rowMarcador);
-        cardOuter.add(Box.createVerticalStrut(14));
-
-        // Separador
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(220, 225, 215));
-        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        cardOuter.add(sep);
-        cardOuter.add(Box.createVerticalStrut(10));
-
-        // Cuotas
-        JPanel rowCuotas = new JPanel(new GridLayout(1, 3, 0, 0));
-        rowCuotas.setOpaque(false);
-        rowCuotas.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        rowCuotas.add(cuotaPanel("Local", "1.85"));
-        rowCuotas.add(cuotaPanel("Empate", "3.40"));
-        rowCuotas.add(cuotaPanel("Visita", "4.20"));
-        cardOuter.add(rowCuotas);
-
-        return cardOuter;
-    }
-
-    private JPanel cuotaPanel(String label, String valor) {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setOpaque(false);
-        JLabel lbl = new JLabel(label, SwingConstants.CENTER);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setForeground(TEXTO_GRIS);
-        lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel val = new JLabel(valor, SwingConstants.CENTER);
-        val.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        val.setForeground(VERDE_OSCURO);
-        val.setAlignmentX(Component.CENTER_ALIGNMENT);
-        p.add(lbl); p.add(val);
-        return p;
-    }
-
-    private JPanel accionCard(String icono, String texto, boolean gris, java.awt.event.ActionListener action) {
+    private JPanel accionCard(String texto, boolean gris, java.awt.event.ActionListener action) {
         JPanel p = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(gris ? new Color(38, 38, 44) : CARD_BG);
+                g2.setColor(gris ? new Color(220, 220, 220) : CARD_BG);
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 16, 16));
                 g2.dispose();
             }
         };
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setOpaque(false);
-        p.setBorder(new EmptyBorder(16, 10, 16, 10));
+        p.setBorder(new EmptyBorder(22, 10, 22, 10));
         p.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         p.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) { action.actionPerformed(null); }
         });
 
-        JLabel lblIco = new JLabel(icono, SwingConstants.CENTER);
-        lblIco.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
-        lblIco.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         // Manejo de texto con salto de línea
         String htmlText = "<html><center>" + texto.replace("\n", "<br>") + "</center></html>";
         JLabel lblTxt = new JLabel(htmlText, SwingConstants.CENTER);
         lblTxt.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblTxt.setForeground(gris ? new Color(110, 110, 110) : VERDE_OSCURO);
+        lblTxt.setForeground(gris ? new Color(80, 80, 80) : VERDE_OSCURO);
         lblTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        p.add(lblIco); p.add(Box.createVerticalStrut(6)); p.add(lblTxt);
+        p.add(Box.createVerticalGlue());
+        p.add(lblTxt);
+        p.add(Box.createVerticalGlue());
         return p;
     }
+
 
     // ── SIDEBAR (DESKTOP NAVIGATION) ──────────────────────────────────────────
     private JPanel construirSidebar() {
@@ -575,7 +358,7 @@ public class MenuPrincipal extends JFrame {
         topPanel.setOpaque(false);
         topPanel.setBorder(new EmptyBorder(24, 20, 24, 20));
 
-        JLabel lblLogo = new JLabel("⚽ WC 2026");
+        JLabel lblLogo = new JLabel("WC 2026");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblLogo.setForeground(AMARILLO);
         lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -587,10 +370,10 @@ public class MenuPrincipal extends JFrame {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(45, 45, 52));
+                g2.setColor(new Color(180, 200, 180));
                 g2.fillOval(0, 0, getWidth(), getHeight());
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 18));
-                g2.setColor(VERDE_BTN);
+                g2.setColor(VERDE_OSCURO);
                 String ini = usuarioLogueado.getNombre().substring(0, 1).toUpperCase();
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(ini, (getWidth() - fm.stringWidth(ini)) / 2, (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
@@ -612,7 +395,7 @@ public class MenuPrincipal extends JFrame {
 
         JLabel lblRole = new JLabel(usuarioLogueado.esAdministrador() ? "Administrador" : "Apostador");
         lblRole.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblRole.setForeground(Color.LIGHT_GRAY);
+        lblRole.setForeground(new Color(170, 200, 170));
         lblRole.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(lblRole);
 
@@ -627,18 +410,17 @@ public class MenuPrincipal extends JFrame {
         String[][] tabs;
         if (usuarioLogueado.esAdministrador()) {
             tabs = new String[][]{
-                {"🏠  Home", "home"},
-                {"⚽  Matches", "pronosticos"},
-                {"🎯  Bets", "apuestas"},
-                {"📊  Leaderboard", "posiciones"},
-                {"⚙️  Results", "resultados"}
+                {"Inicio", "home"},
+                {"Apuestas", "apuestas"},
+                {"Posiciones", "posiciones"},
+                {"Resultados", "resultados"}
             };
         } else {
             tabs = new String[][]{
-                {"🏠  Home", "home"},
-                {"⚽  Matches", "pronosticos"},
-                {"🎯  My Bets", "apuestas"},
-                {"📊  Leaderboard", "posiciones"}
+                {"Inicio", "home"},
+                {"Partidos", "pronosticos"},
+                {"Mis Apuestas", "apuestas"},
+                {"Posiciones", "posiciones"}
             };
         }
 
@@ -652,7 +434,7 @@ public class MenuPrincipal extends JFrame {
                     if (getModel().isRollover() || getForeground().equals(AMARILLO)) {
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2.setColor(new Color(45, 45, 52));
+                        g2.setColor(new Color(30, 80, 42));
                         g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
                         g2.dispose();
                     }
@@ -660,7 +442,7 @@ public class MenuPrincipal extends JFrame {
                 }
             };
             btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            btn.setForeground(i == 0 ? AMARILLO : Color.LIGHT_GRAY);
+            btn.setForeground(i == 0 ? AMARILLO : new Color(190, 220, 190));
             btn.setOpaque(false);
             btn.setContentAreaFilled(false);
             btn.setBorderPainted(false);
@@ -684,7 +466,7 @@ public class MenuPrincipal extends JFrame {
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        JButton btnLogout = new JButton("🚪 Cerrar Sesión") {
+        JButton btnLogout = new JButton("Cerrar Sesión") {
             @Override protected void paintComponent(Graphics g) {
                 if (getModel().isRollover()) {
                     Graphics2D g2 = (Graphics2D) g.create();
@@ -726,6 +508,7 @@ public class MenuPrincipal extends JFrame {
                 }
             }
         }
+        if ("home".equals(key)) actualizarPuntosYRango();
         if ("posiciones".equals(key)) actualizarRankingTable();
         if ("pronosticos".equals(key) && comboGruposPronosticos != null) cargarPartidosParaApuestas();
         if ("resultados".equals(key) && comboGruposResultados != null) cargarPartidosParaResultados();
@@ -743,11 +526,11 @@ public class MenuPrincipal extends JFrame {
         norte.setOpaque(false);
         JLabel lbl = new JLabel("Grupo:");
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(Color.WHITE);
+        lbl.setForeground(VERDE_OSCURO);
         comboGruposPronosticos = new JComboBox<>(gruposLetras);
-        comboGruposPronosticos.setBackground(CARD_BG);
-        comboGruposPronosticos.setForeground(Color.WHITE);
-        comboGruposPronosticos.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70)));
+        comboGruposPronosticos.setBackground(Color.WHITE);
+        comboGruposPronosticos.setForeground(Color.BLACK);
+        comboGruposPronosticos.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         comboGruposPronosticos.addActionListener(e -> cargarPartidosParaApuestas());
         norte.add(lbl); norte.add(comboGruposPronosticos);
         tab.add(norte, BorderLayout.NORTH);
@@ -787,7 +570,7 @@ public class MenuPrincipal extends JFrame {
     private void guardarApuestasGrupo(ActionEvent e) {
         boolean guardadoAlguna = false;
         for (PartidoApuestaPanel pPanel : listaPanelesApuestas) {
-            if (!pPanel.tieneApuestaPrevia()) {
+            if (!pPanel.tieneApuestaPrevia() && !pPanel.isFechaPasada()) {
                 int golesL = pPanel.getGolesLocal();
                 int golesV = pPanel.getGolesVisitante();
                 if (golesL >= 0 && golesV >= 0) {
@@ -815,14 +598,16 @@ public class MenuPrincipal extends JFrame {
         private final int partidoId;
         private final JSpinner spinLocal, spinVisita;
         private final boolean tieneApuestaPrevia;
+        private final boolean fechaPasada;
 
         PartidoApuestaPanel(Partido part, Apuesta prev) {
             this.partidoId = part.getId();
             this.tieneApuestaPrevia = (prev != null);
+            this.fechaPasada = haPasadoFecha(part.getFecha());
             setLayout(new GridLayout(1, 5, 8, 0));
             setBackground(CARD_BG);
             setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(60, 60, 70)),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 225, 215)),
                 new EmptyBorder(10, 14, 10, 14)));
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
 
@@ -845,7 +630,7 @@ public class MenuPrincipal extends JFrame {
             styleSpinner(spinLocal);
             styleSpinner(spinVisita);
             
-            if (tieneApuestaPrevia) {
+            if (tieneApuestaPrevia || fechaPasada) {
                 spinLocal.setEnabled(false);
                 spinVisita.setEnabled(false);
             }
@@ -853,9 +638,10 @@ public class MenuPrincipal extends JFrame {
             add(spinPanel("Local", spinLocal));
             add(spinPanel("Visita", spinVisita));
 
-            JLabel estado = new JLabel(part.isRegistrado() ? "✔ Final" : "⏳ Pend.", SwingConstants.CENTER);
+            String estadoTexto = part.isRegistrado() ? "Final" : (fechaPasada ? "Finalizado" : "Pendiente");
+            JLabel estado = new JLabel(estadoTexto, SwingConstants.CENTER);
             estado.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            estado.setForeground(part.isRegistrado() ? VERDE_OK : AMARILLO_WARN);
+            estado.setForeground((part.isRegistrado() || fechaPasada) ? VERDE_OK : AMARILLO_WARN);
             add(estado);
         }
 
@@ -880,6 +666,7 @@ public class MenuPrincipal extends JFrame {
         }
         
         boolean tieneApuestaPrevia() { return tieneApuestaPrevia; }
+        boolean isFechaPasada() { return fechaPasada; }
     }
 
     // ── PANEL POSICIONES ─────────────────────────────────────────────────────
@@ -905,7 +692,7 @@ public class MenuPrincipal extends JFrame {
         sp.getViewport().setBackground(FONDO);
         tab.add(sp, BorderLayout.CENTER);
 
-        JButton btn = btnRedondeado("🔄  Actualizar", VERDE_BTN, Color.WHITE);
+        JButton btn = btnRedondeado("Actualizar", VERDE_BTN, Color.WHITE);
         btn.addActionListener(e -> actualizarRankingTable());
         JPanel sur = new JPanel(new FlowLayout(FlowLayout.CENTER));
         sur.setOpaque(false); sur.add(btn);
@@ -918,7 +705,69 @@ public class MenuPrincipal extends JFrame {
         modeloTablaPosiciones.setRowCount(0);
         int puesto = 1;
         for (Object[] fila : usuarioControlador.obtenerTablaPosiciones()) {
-            modeloTablaPosiciones.addRow(new Object[]{puesto++, fila[0], fila[1] + " pts"});
+            modeloTablaPosiciones.addRow(new Object[]{puesto++, fila[1], fila[2] + " pts"});
+        }
+    }
+
+    private void actualizarPuntosYRango() {
+        if (lblPuntos == null || lblRango == null) return;
+        if (usuarioLogueado.esAdministrador()) {
+            lblPuntos.setText("0");
+            lblRango.setText("S/R");
+            return;
+        }
+        List<Object[]> posiciones = usuarioControlador.obtenerTablaPosiciones();
+        int puntos = 0;
+        int puesto = 0;
+        boolean encontrado = false;
+        for (int i = 0; i < posiciones.size(); i++) {
+            Object[] fila = posiciones.get(i);
+            int id = (Integer) fila[0];
+            if (id == usuarioLogueado.getId()) {
+                puntos = (Integer) fila[2];
+                puesto = i + 1;
+                encontrado = true;
+                break;
+            }
+        }
+        if (encontrado) {
+            lblPuntos.setText(String.valueOf(puntos));
+            lblRango.setText("#" + puesto);
+        } else {
+            Object[] data = usuarioControlador.obtenerPuntosYRankUsuario(usuarioLogueado.getId());
+            lblPuntos.setText(String.valueOf(data[0]));
+            lblRango.setText(data[1].equals(0) ? "S/R" : "#" + data[1]);
+        }
+    }
+
+    private static boolean haPasadoFecha(String fechaStr) {
+        if (fechaStr == null || fechaStr.isEmpty()) return false;
+        try {
+            String[] partes = fechaStr.toLowerCase().split(" de ");
+            if (partes.length < 2) return false;
+            
+            int dia = Integer.parseInt(partes[0].trim());
+            String mesNombre = partes[1].trim();
+            
+            int mes = 6; // Por defecto Junio
+            if (mesNombre.contains("enero")) mes = 1;
+            else if (mesNombre.contains("febrero")) mes = 2;
+            else if (mesNombre.contains("marzo")) mes = 3;
+            else if (mesNombre.contains("abril")) mes = 4;
+            else if (mesNombre.contains("mayo")) mes = 5;
+            else if (mesNombre.contains("junio")) mes = 6;
+            else if (mesNombre.contains("julio")) mes = 7;
+            else if (mesNombre.contains("agosto")) mes = 8;
+            else if (mesNombre.contains("septiembre")) mes = 9;
+            else if (mesNombre.contains("octubre")) mes = 10;
+            else if (mesNombre.contains("noviembre")) mes = 11;
+            else if (mesNombre.contains("diciembre")) mes = 12;
+            
+            java.time.LocalDate hoy = java.time.LocalDate.now();
+            java.time.LocalDate fechaPartido = java.time.LocalDate.of(hoy.getYear(), mes, dia);
+            return hoy.isAfter(fechaPartido);
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -932,11 +781,11 @@ public class MenuPrincipal extends JFrame {
         norte.setOpaque(false);
         JLabel lbl = new JLabel("Grupo (Admin):");
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(Color.WHITE);
+        lbl.setForeground(VERDE_OSCURO);
         comboGruposResultados = new JComboBox<>(gruposLetras);
-        comboGruposResultados.setBackground(CARD_BG);
-        comboGruposResultados.setForeground(Color.WHITE);
-        comboGruposResultados.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70)));
+        comboGruposResultados.setBackground(Color.WHITE);
+        comboGruposResultados.setForeground(Color.BLACK);
+        comboGruposResultados.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         comboGruposResultados.addActionListener(e -> cargarPartidosParaResultados());
         norte.add(lbl); norte.add(comboGruposResultados);
         tab.add(norte, BorderLayout.NORTH);
@@ -995,7 +844,7 @@ public class MenuPrincipal extends JFrame {
             setLayout(new GridLayout(1, 4, 8, 0));
             setBackground(CARD_BG);
             setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(60, 60, 70)),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 225, 215)),
                 new EmptyBorder(10, 14, 10, 14)));
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 52));
 
@@ -1015,7 +864,8 @@ public class MenuPrincipal extends JFrame {
             add(spinPanel("Local", spinLocal));
             add(spinPanel("Visita", spinVisita));
 
-            chk = new JCheckBox("Finalizado", part.isRegistrado());
+            boolean fechaPasada = haPasadoFecha(part.getFecha());
+            chk = new JCheckBox("Finalizado", part.isRegistrado() || fechaPasada);
             chk.setOpaque(false);
             chk.setForeground(VERDE_OSCURO);
             add(chk);
@@ -1114,19 +964,19 @@ public class MenuPrincipal extends JFrame {
 
     private void styleTable(JTable table) {
         table.setBackground(CARD_BG);
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(60, 60, 70));
+        table.setForeground(Color.BLACK);
+        table.setGridColor(new Color(220, 225, 215));
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setSelectionBackground(VERDE_BTN);
-        table.setSelectionForeground(Color.BLACK);
+        table.setSelectionForeground(Color.WHITE);
         table.setShowGrid(true);
         table.setFillsViewportHeight(true);
         
         // Header styling
         javax.swing.table.JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(30, 30, 36));
-        header.setForeground(VERDE_BTN);
+        header.setBackground(new Color(230, 235, 225));
+        header.setForeground(VERDE_OSCURO);
         header.setFont(new Font("Segoe UI", Font.BOLD, 13));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, VERDE_BTN));
         
@@ -1138,13 +988,13 @@ public class MenuPrincipal extends JFrame {
                 setHorizontalAlignment(SwingConstants.CENTER);
                 if (isSelected) {
                     c.setBackground(VERDE_BTN);
-                    c.setForeground(Color.BLACK);
-                } else {
                     c.setForeground(Color.WHITE);
+                } else {
+                    c.setForeground(Color.BLACK);
                     if (row % 2 == 0) {
                         c.setBackground(CARD_BG);
                     } else {
-                        c.setBackground(new Color(38, 38, 44));
+                        c.setBackground(new Color(245, 247, 242));
                     }
                 }
                 return c;
@@ -1159,10 +1009,10 @@ public class MenuPrincipal extends JFrame {
         JComponent editor = spinner.getEditor();
         if (editor instanceof JSpinner.DefaultEditor) {
             JFormattedTextField ft = ((JSpinner.DefaultEditor) editor).getTextField();
-            ft.setBackground(new Color(30, 30, 36));
-            ft.setForeground(Color.WHITE);
-            ft.setCaretColor(Color.WHITE);
-            ft.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70)));
+            ft.setBackground(Color.WHITE);
+            ft.setForeground(Color.BLACK);
+            ft.setCaretColor(Color.BLACK);
+            ft.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         }
     }
 
@@ -1198,7 +1048,7 @@ public class MenuPrincipal extends JFrame {
         scrollPane.getViewport().setBackground(FONDO);
         panelTab.add(scrollPane, BorderLayout.CENTER);
 
-        JButton btnActualizar = btnRedondeado("🔄 Actualizar Pronósticos", VERDE_BTN, Color.WHITE);
+        JButton btnActualizar = btnRedondeado("Actualizar Pronósticos", VERDE_BTN, Color.WHITE);
         btnActualizar.addActionListener(e -> cargarDatosTablaApuestas());
         
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -1262,7 +1112,7 @@ public class MenuPrincipal extends JFrame {
         scrollTable.getViewport().setBackground(FONDO);
         panelTab.add(scrollTable, BorderLayout.CENTER);
 
-        JButton btnActualizar = btnRedondeado("🔄 Actualizar Historial", VERDE_BTN, Color.WHITE);
+        JButton btnActualizar = btnRedondeado("Actualizar Historial", VERDE_BTN, Color.WHITE);
         btnActualizar.addActionListener(e -> actualizarHistorialTable());
         
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));

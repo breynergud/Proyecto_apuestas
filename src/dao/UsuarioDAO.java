@@ -102,12 +102,18 @@ public class UsuarioDAO {
     // Devuelve los datos de ranking para ser mostrados directamente en una JTable en Swing
     public List<Object[]> obtenerRanking() {
         List<Object[]> ranking = new ArrayList<>();
-        String sql = "SELECT apostador, puntos_totales FROM ranking_apostadores";
+        String sql = "SELECT r.apostador_id, r.apostador, r.puntos_totales " +
+                     "FROM ranking_apostadores r " +
+                     "JOIN apostadores a ON r.apostador_id = a.id " +
+                     "JOIN roles ro ON a.rol_id = ro.id " +
+                     "WHERE ro.nombre != 'ADMINISTRADOR' " +
+                     "ORDER BY r.puntos_totales DESC";
         try (Connection conn = ConexionBD.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 ranking.add(new Object[]{
+                    rs.getInt("apostador_id"),
                     rs.getString("apostador"),
                     rs.getInt("puntos_totales")
                 });
@@ -116,5 +122,28 @@ public class UsuarioDAO {
             System.err.println("Error al obtener ranking: " + e.getMessage());
         }
         return ranking;
+    }
+
+    public Object[] obtenerPuntosYRankUsuario(int usuarioId) {
+        String sql = "SELECT " +
+                     "  (SELECT COUNT(*) + 1 FROM ranking_apostadores r2 " +
+                     "   JOIN apostadores a2 ON r2.apostador_id = a2.id " +
+                     "   JOIN roles ro2 ON a2.rol_id = ro2.id " +
+                     "   WHERE ro2.nombre != 'ADMINISTRADOR' AND r2.puntos_totales > r1.puntos_totales) AS puesto, " +
+                     "  r1.puntos_totales " +
+                     "FROM ranking_apostadores r1 " +
+                     "WHERE r1.apostador_id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, usuarioId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Object[]{ rs.getInt("puntos_totales"), rs.getInt("puesto") };
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener puntos y rank del usuario: " + e.getMessage());
+        }
+        return new Object[]{ 0, 0 };
     }
 }
