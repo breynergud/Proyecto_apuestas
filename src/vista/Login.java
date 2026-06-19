@@ -137,13 +137,41 @@ public class Login extends JFrame {
         }
 
         // Crear panel con campos para Nombre y Contraseña
-        JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(2, 2, 8, 8));
+        panel.setBackground(new Color(30, 30, 36));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel lblNombre = new JLabel("Nombre Completo:");
+        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblNombre.setForeground(Color.LIGHT_GRAY);
+
         JTextField txtNombre = new JTextField();
+        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtNombre.setBackground(new Color(45, 45, 52));
+        txtNombre.setForeground(Color.WHITE);
+        txtNombre.setCaretColor(Color.WHITE);
+        txtNombre.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(60, 60, 70), 1),
+            BorderFactory.createEmptyBorder(4, 6, 4, 6)
+        ));
+
+        JLabel lblRegPassword = new JLabel("Nueva Contraseña:");
+        lblRegPassword.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblRegPassword.setForeground(Color.LIGHT_GRAY);
+
         JPasswordField txtRegPassword = new JPasswordField();
+        txtRegPassword.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtRegPassword.setBackground(new Color(45, 45, 52));
+        txtRegPassword.setForeground(Color.WHITE);
+        txtRegPassword.setCaretColor(Color.WHITE);
+        txtRegPassword.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(60, 60, 70), 1),
+            BorderFactory.createEmptyBorder(4, 6, 4, 6)
+        ));
         
-        panel.add(new JLabel("Nombre Completo:"));
+        panel.add(lblNombre);
         panel.add(txtNombre);
-        panel.add(new JLabel("Nueva Contraseña:"));
+        panel.add(lblRegPassword);
         panel.add(txtRegPassword);
 
         int result = JOptionPane.showConfirmDialog(this, panel, "Registro de Nuevo Apostador", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
