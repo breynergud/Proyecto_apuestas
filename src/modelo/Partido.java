@@ -6,11 +6,12 @@ public class Partido {
     private String local;
     private String visitante;
     private String fecha;
-    private Integer golesLocal;      // Puede ser null si no está registrado
-    private Integer golesVisitante;  // Puede ser null si no está registrado
+    private Integer golesLocal;
+    private Integer golesVisitante;
     private boolean registrado;
 
-    public Partido(int id, String grupoId, String local, String visitante, String fecha, Integer golesLocal, Integer golesVisitante, boolean registrado) {
+    public Partido(int id, String grupoId, String local, String visitante, String fecha, Integer golesLocal,
+            Integer golesVisitante, boolean registrado) {
         this.id = id;
         this.grupoId = grupoId;
         this.local = local;

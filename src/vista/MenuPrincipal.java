@@ -55,6 +55,8 @@ public class MenuPrincipal extends JFrame {
     private DefaultTableModel modeloTablaHistorial;
     private JComboBox<String> comboFiltroUsuario;
     private JComboBox<String> comboFiltroGrupo;
+    private JComboBox<String> comboApuestasUsuario;
+    private JComboBox<String> comboApuestasGrupo;
     private JTextField txtBuscarEquipo;
 
     private JTable tablaApuestas;
@@ -515,7 +517,10 @@ public class MenuPrincipal extends JFrame {
         if ("posiciones".equals(key)) actualizarRankingTable();
         if ("pronosticos".equals(key) && comboGruposPronosticos != null) cargarPartidosParaApuestas();
         if ("resultados".equals(key) && comboGruposResultados != null) cargarPartidosParaResultados();
-        if ("apuestas".equals(key)) cargarDatosTablaApuestas();
+        if ("apuestas".equals(key)) {
+            cargarFiltroApuestasUsuarios();
+            cargarDatosTablaApuestas();
+        }
         if ("historial".equals(key)) {
             cargarFiltroUsuarios();
             actualizarHistorialTable();
@@ -1039,13 +1044,54 @@ public class MenuPrincipal extends JFrame {
         panelTab.setBackground(FONDO);
         panelTab.setBorder(new EmptyBorder(15, 15, 15, 15));
 
+        // Panel Norte: Título + Filtros
+        JPanel panelNorte = new JPanel();
+        panelNorte.setLayout(new BoxLayout(panelNorte, BoxLayout.Y_AXIS));
+        panelNorte.setOpaque(false);
+
         String tituloLabel = usuarioLogueado.esAdministrador() ? 
             "Listado General de Pronósticos del Sistema" : 
             "Mis Pronósticos Registrados";
         JLabel lblTitulo = new JLabel(tituloLabel, SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTitulo.setForeground(VERDE_OSCURO);
-        panelTab.add(lblTitulo, BorderLayout.NORTH);
+        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelNorte.add(lblTitulo);
+        panelNorte.add(Box.createVerticalStrut(10));
+
+        // Panel de Filtros para Apuestas
+        JPanel panelFiltros = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        panelFiltros.setOpaque(false);
+
+        if (usuarioLogueado.esAdministrador()) {
+            JLabel lblFiltroUsuario = new JLabel("Filtrar por Usuario:");
+            lblFiltroUsuario.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            lblFiltroUsuario.setForeground(VERDE_OSCURO);
+
+            comboApuestasUsuario = new JComboBox<>();
+            comboApuestasUsuario.setBackground(Color.WHITE);
+            comboApuestasUsuario.setForeground(Color.BLACK);
+
+            panelFiltros.add(lblFiltroUsuario);
+            panelFiltros.add(comboApuestasUsuario);
+        }
+
+        JLabel lblFiltroGrupo = new JLabel("Filtrar por Grupo:");
+        lblFiltroGrupo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblFiltroGrupo.setForeground(VERDE_OSCURO);
+
+        String[] gruposConTodos = new String[gruposLetras.length + 1];
+        gruposConTodos[0] = "Todos";
+        System.arraycopy(gruposLetras, 0, gruposConTodos, 1, gruposLetras.length);
+        comboApuestasGrupo = new JComboBox<>(gruposConTodos);
+        comboApuestasGrupo.setBackground(Color.WHITE);
+        comboApuestasGrupo.setForeground(Color.BLACK);
+
+        panelFiltros.add(lblFiltroGrupo);
+        panelFiltros.add(comboApuestasGrupo);
+
+        panelNorte.add(panelFiltros);
+        panelTab.add(panelNorte, BorderLayout.NORTH);
 
         // Columnas exactas del ejemplo
         String[] columnas = {"Apostador", "Local", "Visitante", "Goles L", "Goles V"};
@@ -1071,20 +1117,68 @@ public class MenuPrincipal extends JFrame {
         panelBoton.add(btnActualizar);
         panelTab.add(panelBoton, BorderLayout.SOUTH);
 
+        // Agregar listeners para actualizar automáticamente al cambiar los filtros
+        java.awt.event.ActionListener filtroListener = e -> cargarDatosTablaApuestas();
+        if (comboApuestasUsuario != null) {
+            comboApuestasUsuario.addActionListener(filtroListener);
+        }
+        comboApuestasGrupo.addActionListener(filtroListener);
+
+        cargarFiltroApuestasUsuarios();
         cargarDatosTablaApuestas();
+        
         return panelTab;
     }
 
+    private void cargarFiltroApuestasUsuarios() {
+        if (comboApuestasUsuario == null) return;
+        
+        // Detener listeners temporalmente
+        java.awt.event.ActionListener[] listeners = comboApuestasUsuario.getActionListeners();
+        for (java.awt.event.ActionListener l : listeners) {
+            comboApuestasUsuario.removeActionListener(l);
+        }
+        
+        String seleccionActual = (String) comboApuestasUsuario.getSelectedItem();
+        
+        comboApuestasUsuario.removeAllItems();
+        comboApuestasUsuario.addItem("Todos");
+        
+        List<modelo.Usuario> usuarios = usuarioControlador.obtenerListaUsuarios();
+        for (modelo.Usuario u : usuarios) {
+            if (!u.esAdministrador()) {
+                comboApuestasUsuario.addItem(u.getNombre());
+            }
+        }
+        
+        if (seleccionActual != null) {
+            comboApuestasUsuario.setSelectedItem(seleccionActual);
+        } else {
+            comboApuestasUsuario.setSelectedIndex(0);
+        }
+        
+        for (java.awt.event.ActionListener l : listeners) {
+            comboApuestasUsuario.addActionListener(l);
+        }
+    }
+
     private void cargarDatosTablaApuestas() {
+        if (modeloTablaApuestas == null) return;
+        
         // 1. Limpiar la tabla antes de cargar para no duplicar datos visualmente
         modeloTablaApuestas.setRowCount(0);
+
+        String usuario = comboApuestasUsuario != null ? (String) comboApuestasUsuario.getSelectedItem() : "Todos";
+        String grupo = comboApuestasGrupo != null ? (String) comboApuestasGrupo.getSelectedItem() : "Todos";
+        if (usuario == null) usuario = "Todos";
+        if (grupo == null) grupo = "Todos";
 
         // 2. Pedirle al DAO la lista de apuestas (BD -> Java)
         List<Apuesta> historial;
         if (usuarioLogueado.esAdministrador()) {
-            historial = apuestaControlador.obtenerTodasLasApuestas();
+            historial = apuestaControlador.obtenerTodasLasApuestas(usuario, grupo);
         } else {
-            historial = apuestaControlador.obtenerApuestasPorUsuario(usuarioLogueado.getId());
+            historial = apuestaControlador.obtenerApuestasPorUsuario(usuarioLogueado.getId(), grupo);
         }
 
         // 3. Recorrer la lista y añadir filas al modelo de la tabla

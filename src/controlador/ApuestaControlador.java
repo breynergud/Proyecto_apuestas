@@ -51,10 +51,18 @@ public class ApuestaControlador {
     }
 
     public List<Apuesta> obtenerTodasLasApuestas() {
-        return apuestaDAO.obtenerTodasLasApuestas();
+        return obtenerTodasLasApuestas("Todos", "Todos");
+    }
+
+    public List<Apuesta> obtenerTodasLasApuestas(String apostador, String grupo) {
+        return apuestaDAO.obtenerTodasLasApuestas(apostador, grupo);
     }
 
     public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId) {
-        return apuestaDAO.obtenerApuestasPorUsuario(usuarioId);
+        return obtenerApuestasPorUsuario(usuarioId, "Todos");
+    }
+
+    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId, String grupo) {
+        return apuestaDAO.obtenerApuestasPorUsuario(usuarioId, grupo);
     }
 }

@@ -105,54 +105,45 @@ public class ApuestaDAO {
     }
 
     public List<Apuesta> obtenerTodasLasApuestas() {
-        List<Apuesta> lista = new ArrayList<>();
-        String sql = "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
-                     "el.nombre AS local, ev.nombre AS visitante, " +
-                     "a.goles_local_apuesta, a.goles_visitante_apuesta " +
-                     "FROM apuestas a " +
-                     "JOIN apostadores ap ON a.apostador_id = ap.id " +
-                     "JOIN roles ro ON ap.rol_id = ro.id " +
-                     "JOIN partidos p ON a.partido_id = p.id " +
-                     "JOIN equipos el ON p.local_id = el.id " +
-                     "JOIN equipos ev ON p.visitante_id = ev.id " +
-                     "WHERE ro.nombre != 'ADMINISTRADOR' " +
-                     "ORDER BY ap.nombre, el.nombre";
-        try (Connection conn = ConexionBD.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                lista.add(new Apuesta(
-                    rs.getInt("id"),
-                    rs.getInt("apostador_id"),
-                    rs.getInt("partido_id"),
-                    rs.getInt("goles_local_apuesta"),
-                    rs.getInt("goles_visitante_apuesta"),
-                    rs.getString("apostador"),
-                    rs.getString("local"),
-                    rs.getString("visitante")
-                ));
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener todas las apuestas: " + e.getMessage());
-        }
-        return lista;
+        return obtenerTodasLasApuestas("Todos", "Todos");
     }
 
-    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId) {
+    public List<Apuesta> obtenerTodasLasApuestas(String apostadorFilter, String grupoFilter) {
         List<Apuesta> lista = new ArrayList<>();
-        String sql = "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
-                     "el.nombre AS local, ev.nombre AS visitante, " +
-                     "a.goles_local_apuesta, a.goles_visitante_apuesta " +
-                     "FROM apuestas a " +
-                     "JOIN apostadores ap ON a.apostador_id = ap.id " +
-                     "JOIN partidos p ON a.partido_id = p.id " +
-                     "JOIN equipos el ON p.local_id = el.id " +
-                     "JOIN equipos ev ON p.visitante_id = ev.id " +
-                     "WHERE a.apostador_id = ? " +
-                     "ORDER BY el.nombre";
+        StringBuilder sql = new StringBuilder(
+            "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
+            "el.nombre AS local, ev.nombre AS visitante, " +
+            "a.goles_local_apuesta, a.goles_visitante_apuesta " +
+            "FROM apuestas a " +
+            "JOIN apostadores ap ON a.apostador_id = ap.id " +
+            "JOIN roles ro ON ap.rol_id = ro.id " +
+            "JOIN partidos p ON a.partido_id = p.id " +
+            "JOIN equipos el ON p.local_id = el.id " +
+            "JOIN equipos ev ON p.visitante_id = ev.id " +
+            "WHERE ro.nombre != 'ADMINISTRADOR' "
+        );
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (apostadorFilter != null && !apostadorFilter.equalsIgnoreCase("Todos")) {
+            sql.append("AND ap.nombre = ? ");
+            params.add(apostadorFilter);
+        }
+        
+        if (grupoFilter != null && !grupoFilter.equalsIgnoreCase("Todos")) {
+            sql.append("AND p.grupo_id = ? ");
+            params.add(grupoFilter);
+        }
+        
+        sql.append("ORDER BY ap.nombre, el.nombre");
+        
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, usuarioId);
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+             
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     lista.add(new Apuesta(
@@ -168,7 +159,62 @@ public class ApuestaDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener apuestas del usuario: " + e.getMessage());
+            System.err.println("Error al obtener todas las apuestas filtradas: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId) {
+        return obtenerApuestasPorUsuario(usuarioId, "Todos");
+    }
+
+    public List<Apuesta> obtenerApuestasPorUsuario(int usuarioId, String grupoFilter) {
+        List<Apuesta> lista = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT a.id, a.apostador_id, a.partido_id, ap.nombre AS apostador, " +
+            "el.nombre AS local, ev.nombre AS visitante, " +
+            "a.goles_local_apuesta, a.goles_visitante_apuesta " +
+            "FROM apuestas a " +
+            "JOIN apostadores ap ON a.apostador_id = ap.id " +
+            "JOIN partidos p ON a.partido_id = p.id " +
+            "JOIN equipos el ON p.local_id = el.id " +
+            "JOIN equipos ev ON p.visitante_id = ev.id " +
+            "WHERE a.apostador_id = ? "
+        );
+        
+        List<Object> params = new ArrayList<>();
+        params.add(usuarioId);
+        
+        if (grupoFilter != null && !grupoFilter.equalsIgnoreCase("Todos")) {
+            sql.append("AND p.grupo_id = ? ");
+            params.add(grupoFilter);
+        }
+        
+        sql.append("ORDER BY el.nombre");
+        
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+             
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Apuesta(
+                        rs.getInt("id"),
+                        rs.getInt("apostador_id"),
+                        rs.getInt("partido_id"),
+                        rs.getInt("goles_local_apuesta"),
+                        rs.getInt("goles_visitante_apuesta"),
+                        rs.getString("apostador"),
+                        rs.getString("local"),
+                        rs.getString("visitante")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener apuestas del usuario filtradas: " + e.getMessage());
         }
         return lista;
     }
