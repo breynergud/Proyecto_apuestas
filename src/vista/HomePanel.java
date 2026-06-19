@@ -45,28 +45,7 @@ public class HomePanel extends JPanel {
         colLeft.add(lblHola);
         colLeft.add(Box.createVerticalStrut(4));
         colLeft.add(lblSub);
-        colLeft.add(Box.createVerticalStrut(18));
-
-        // Badge PRO MEMBER
-        JPanel badge = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6)) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(UIStyleUtil.AMARILLO);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20));
-                g2.dispose();
-            }
-        };
-        badge.setOpaque(false);
-        badge.setMaximumSize(new Dimension(150, 32));
-        badge.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JLabel lblBadge = new JLabel("PRO MEMBER");
-        lblBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblBadge.setForeground(UIStyleUtil.VERDE_OSCURO);
-        badge.add(lblBadge);
-        
-        colLeft.add(badge);
-        colLeft.add(Box.createVerticalStrut(20));
+        colLeft.add(Box.createVerticalStrut(25));
 
         // Stats cards row
         JPanel rowStats = new JPanel(new GridLayout(1, 2, 16, 0));
