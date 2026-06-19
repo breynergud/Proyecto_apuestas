@@ -141,8 +141,8 @@ public class PronosticosPanel extends JPanel {
             int vV = Math.min(prev != null ? prev.getGolesVisitante() : 0, 15);
             spinLocal  = new JSpinner(new SpinnerNumberModel(vL, 0, 15, 1));
             spinVisita = new JSpinner(new SpinnerNumberModel(vV, 0, 15, 1));
-            UIStyleUtil.configurarSoloNumeros(spinLocal);
-            UIStyleUtil.configurarSoloNumeros(spinVisita);
+            UIStyleUtil.configurarSoloNumeros(spinLocal, 15);
+            UIStyleUtil.configurarSoloNumeros(spinVisita, 15);
             UIStyleUtil.styleSpinner(spinLocal);
             UIStyleUtil.styleSpinner(spinVisita);
             

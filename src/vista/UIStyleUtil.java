@@ -7,22 +7,22 @@ import java.awt.geom.RoundRectangle2D;
 
 public class UIStyleUtil {
 
-    // Paleta de colores Premium
-    public static final Color SIDEBAR_BG    = new Color(20, 60, 30);   // Deep green
-    public static final Color VERDE_OSCURO  = new Color(20, 60, 30);   // Deep green text
-    public static final Color VERDE_BTN     = new Color(22, 68, 35);   // Accent green
-    public static final Color AMARILLO      = new Color(230, 190, 40); // Gold / highlight
-    public static final Color FONDO         = new Color(242, 244, 240); // Light background
-    public static final Color CARD_BG       = Color.WHITE;
-    public static final Color TEXTO_GRIS    = new Color(110, 110, 110);
-    public static final Color ROJO_LIVE     = new Color(210, 50, 50);   // Live red
-    public static final Color VERDE_OK      = new Color(39, 174, 96);   // Emerald green
-    public static final Color AMARILLO_WARN = new Color(200, 150, 10);  // Gold-yellow warn
-    public static final Color AMARILLO_SUAVE= new Color(255, 248, 210); // Light highlight row
+    public static final Color SIDEBAR_BG = new Color(20, 60, 30);
+    public static final Color VERDE_OSCURO = new Color(20, 60, 30);
+    public static final Color VERDE_BTN = new Color(22, 68, 35);
+    public static final Color AMARILLO = new Color(230, 190, 40);
+    public static final Color FONDO = new Color(242, 244, 240);
+    public static final Color CARD_BG = Color.WHITE;
+    public static final Color TEXTO_GRIS = new Color(110, 110, 110);
+    public static final Color ROJO_LIVE = new Color(210, 50, 50);
+    public static final Color VERDE_OK = new Color(39, 174, 96);
+    public static final Color AMARILLO_WARN = new Color(200, 150, 10);
+    public static final Color AMARILLO_SUAVE = new Color(255, 248, 210);
 
     public static JPanel card() {
         JPanel p = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(CARD_BG);
@@ -36,7 +36,8 @@ public class UIStyleUtil {
 
     public static JButton btnRedondeado(String texto, Color bg, Color fg) {
         JButton btn = new JButton(texto) {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getModel().isPressed() ? bg.darker() : bg);
@@ -68,40 +69,71 @@ public class UIStyleUtil {
     }
 
     public static void configurarSoloNumeros(JSpinner spinner) {
+        configurarSoloNumeros(spinner, 20);
+    }
+
+    public static void configurarSoloNumeros(JSpinner spinner, int max) {
         JComponent editor = spinner.getEditor();
         if (editor instanceof JSpinner.DefaultEditor) {
             JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
-            
+
             javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
                 @Override
-                public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
-                    if (string != null && string.matches("\\d+")) {
-                        super.insertString(fb, offset, string, attr);
+                public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
+                        throws javax.swing.text.BadLocationException {
+                    if (string == null) return;
+                    String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                    String proposedText = currentText.substring(0, offset) + string + currentText.substring(offset);
+                    if (proposedText.matches("\\d+")) {
+                        try {
+                            int val = Integer.parseInt(proposedText);
+                            if (val <= max) {
+                                super.insertString(fb, offset, string, attr);
+                            }
+                        } catch (NumberFormatException e) {
+                            // Ignorar si no se puede parsear
+                        }
                     }
                 }
 
                 @Override
-                public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
-                    if (text != null && text.matches("\\d*")) {
+                public void replace(FilterBypass fb, int offset, int length, String text,
+                        javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                    if (text == null) return;
+                    String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                    String proposedText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                    if (proposedText.isEmpty()) {
                         super.replace(fb, offset, length, text, attrs);
+                        return;
+                    }
+                    if (proposedText.matches("\\d+")) {
+                        try {
+                            int val = Integer.parseInt(proposedText);
+                            if (val <= max) {
+                                super.replace(fb, offset, length, text, attrs);
+                            }
+                        } catch (NumberFormatException e) {
+                            // Ignorar
+                        }
                     }
                 }
             };
-            
+
             txt.addPropertyChangeListener("formatter", evt -> {
                 ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
             });
-            
+
             txt.addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyTyped(java.awt.event.KeyEvent e) {
                     char c = e.getKeyChar();
-                    if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE && c != java.awt.event.KeyEvent.VK_DELETE) {
+                    if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE
+                            && c != java.awt.event.KeyEvent.VK_DELETE) {
                         e.consume();
                     }
                 }
             });
-            
+
             ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
         }
     }
@@ -116,16 +148,17 @@ public class UIStyleUtil {
         table.setSelectionForeground(Color.WHITE);
         table.setShowGrid(true);
         table.setFillsViewportHeight(true);
-        
+
         javax.swing.table.JTableHeader header = table.getTableHeader();
         header.setBackground(new Color(230, 235, 225));
         header.setForeground(VERDE_OSCURO);
         header.setFont(new Font("Segoe UI", Font.BOLD, 13));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, VERDE_BTN));
-        
+
         javax.swing.table.DefaultTableCellRenderer cellRenderer = new javax.swing.table.DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSelected, boolean hasFocus, int row, int col) {
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean isSelected, boolean hasFocus,
+                    int row, int col) {
                 Component c = super.getTableCellRendererComponent(t, val, isSelected, hasFocus, row, col);
                 setHorizontalAlignment(SwingConstants.CENTER);
                 if (isSelected) {
