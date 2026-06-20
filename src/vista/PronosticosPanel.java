@@ -56,7 +56,7 @@ public class PronosticosPanel extends JPanel {
         sp.getViewport().setBackground(UIStyleUtil.FONDO);
         add(sp, BorderLayout.CENTER);
 
-        JButton btn = UIStyleUtil.btnRedondeado("Guardar Pronósticos", UIStyleUtil.VERDE_BTN, Color.WHITE);
+        JButton btn = UIStyleUtil.btnRedondeado("Guardar Pron\u00f3stico", UIStyleUtil.VERDE_BTN, Color.WHITE);
         btn.addActionListener(this::guardarApuestasGrupo);
         
         JPanel sur = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -102,11 +102,11 @@ public class PronosticosPanel extends JPanel {
             }
         }
         if (guardadoAlguna) {
-            JOptionPane.showMessageDialog(parent, "¡Tus nuevos pronósticos han sido guardados con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "\u00a1Pron\u00f3sticos guardados con \u00e9xito!", "\u00c9xito", JOptionPane.INFORMATION_MESSAGE);
             parent.refrescarTodo();
-            cargarPartidosParaApuestas(); // Recargar pestaña para bloquear las apuestas recién guardadas
+            cargarPartidosParaApuestas();
         } else {
-            JOptionPane.showMessageDialog(parent, "No hay nuevos pronósticos para guardar en este grupo.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "No hay nuevos pron\u00f3sticos para guardar en este grupo.", "Informaci\u00f3n", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

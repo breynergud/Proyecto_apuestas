@@ -69,41 +69,88 @@ public class UIStyleUtil {
 
     public static void configurarSoloNumeros(JSpinner spinner) {
         JComponent editor = spinner.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
-            
-            javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
-                @Override
-                public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
-                    if (string != null && string.matches("\\d+")) {
-                        super.insertString(fb, offset, string, attr);
-                    }
-                }
+        if (!(editor instanceof JSpinner.DefaultEditor)) return;
+        JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
 
-                @Override
-                public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
-                    if (text != null && text.matches("\\d*")) {
-                        super.replace(fb, offset, length, text, attrs);
-                    }
+        // Obtener el máximo definido en el modelo
+        int maxValor = (spinner.getModel() instanceof SpinnerNumberModel)
+            ? ((Number) ((SpinnerNumberModel) spinner.getModel()).getMaximum()).intValue()
+            : 15;
+
+        javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                if (string != null && string.matches("\\d+")) {
+                    super.insertString(fb, offset, string, attr);
                 }
-            };
-            
-            txt.addPropertyChangeListener("formatter", evt -> {
-                ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
-            });
-            
-            txt.addKeyListener(new java.awt.event.KeyAdapter() {
-                @Override
-                public void keyTyped(java.awt.event.KeyEvent e) {
-                    char c = e.getKeyChar();
-                    if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE && c != java.awt.event.KeyEvent.VK_DELETE) {
-                        e.consume();
-                    }
+            }
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                if (text != null && text.matches("\\d*")) {
+                    super.replace(fb, offset, length, text, attrs);
                 }
-            });
-            
-            ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
+            }
+        };
+
+        txt.addPropertyChangeListener("formatter", evt ->
+            ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter));
+        ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
+
+        // Bloquear letras y validar límite al escribir
+        txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyTyped(java.awt.event.KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE && c != java.awt.event.KeyEvent.VK_DELETE) {
+                    e.consume();
+                }
+            }
+        });
+
+        // Validar rango al perder el foco o presionar Enter
+        txt.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                validarLimite(spinner, txt, maxValor);
+            }
+        });
+
+        txt.addActionListener(e -> validarLimite(spinner, txt, maxValor));
+
+        // Validar también cuando el modelo cambia (flechas del spinner)
+        spinner.addChangeListener(e -> {
+            int val = ((Number) spinner.getValue()).intValue();
+            if (val > maxValor) {
+                spinner.setValue(maxValor);
+                mostrarAlertaLimite(spinner, maxValor);
+            }
+        });
+    }
+
+    private static void validarLimite(JSpinner spinner, JFormattedTextField txt, int maxValor) {
+        try {
+            String texto = txt.getText().trim();
+            if (!texto.isEmpty()) {
+                int valor = Integer.parseInt(texto);
+                if (valor > maxValor) {
+                    mostrarAlertaLimite(spinner, maxValor);
+                    spinner.setValue(maxValor);
+                } else if (valor < 0) {
+                    spinner.setValue(0);
+                }
+            }
+        } catch (NumberFormatException ex) {
+            spinner.setValue(0);
         }
+    }
+
+    private static void mostrarAlertaLimite(JSpinner spinner, int maxValor) {
+        JOptionPane.showMessageDialog(
+            SwingUtilities.getWindowAncestor(spinner),
+            "El valor m\u00e1ximo permitido es " + maxValor + " goles.\nSe ha ajustado autom\u00e1ticamente.",
+            "Valor no permitido",
+            JOptionPane.WARNING_MESSAGE
+        );
     }
 
     public static void styleTable(JTable table) {
