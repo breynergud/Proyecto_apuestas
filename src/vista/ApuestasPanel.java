@@ -95,8 +95,19 @@ public class ApuestasPanel extends JPanel {
         scrollPane.getViewport().setBackground(UIStyleUtil.FONDO);
         add(scrollPane, BorderLayout.CENTER);
 
-        JButton btnActualizar = UIStyleUtil.btnRedondeado("Actualizar Pronósticos", UIStyleUtil.VERDE_BTN, Color.WHITE);
-        btnActualizar.addActionListener(e -> cargarDatosTablaApuestas());
+        JButton btnActualizar = UIStyleUtil.btnRedondeado("Actualizar Pron\u00f3sticos", UIStyleUtil.VERDE_BTN, Color.WHITE);
+        btnActualizar.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                parent,
+                "Para actualizar tus pron\u00f3sticos debes ir al panel de Partidos.\n\u00bfDeseas ir ahora?",
+                "Actualizar Pron\u00f3sticos",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                parent.mostrarTab("pronosticos", 1);
+            }
+        });
         
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelBoton.setOpaque(false);

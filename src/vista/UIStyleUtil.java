@@ -68,89 +68,101 @@ public class UIStyleUtil {
         return p;
     }
 
+    private static boolean alertaMostrada = false;
+
     public static void configurarSoloNumeros(JSpinner spinner) {
         configurarSoloNumeros(spinner, 20);
     }
 
     public static void configurarSoloNumeros(JSpinner spinner, int max) {
         JComponent editor = spinner.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
+        if (!(editor instanceof JSpinner.DefaultEditor)) return;
+        JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
 
-            javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
-                @Override
-                public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
-                        throws javax.swing.text.BadLocationException {
-                    if (string == null) return;
-                    String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-                    String proposedText = currentText.substring(0, offset) + string + currentText.substring(offset);
-                    if (proposedText.matches("\\d+")) {
-                        try {
-                            int val = Integer.parseInt(proposedText);
-                            if (val <= max) {
-                                super.insertString(fb, offset, string, attr);
-                            } else {
-                                mostrarAlertaExcedido(max);
-                            }
-                        } catch (NumberFormatException e) {
-                            mostrarAlertaExcedido(max);
+        javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
+                    throws javax.swing.text.BadLocationException {
+                if (string == null) return;
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String proposedText = currentText.substring(0, offset) + string + currentText.substring(offset);
+                if (proposedText.matches("\\d+")) {
+                    try {
+                        int val = Integer.parseInt(proposedText);
+                        if (val <= max) {
+                            super.insertString(fb, offset, string, attr);
+                        } else {
+                            mostrarAlertaLimite(spinner, max);
                         }
+                    } catch (NumberFormatException e) {
+                        mostrarAlertaLimite(spinner, max);
                     }
                 }
+            }
 
-                @Override
-                public void replace(FilterBypass fb, int offset, int length, String text,
-                        javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
-                    if (text == null) return;
-                    String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-                    String proposedText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
-                    if (proposedText.isEmpty()) {
-                        super.replace(fb, offset, length, text, attrs);
-                        return;
-                    }
-                    if (proposedText.matches("\\d+")) {
-                        try {
-                            int val = Integer.parseInt(proposedText);
-                            if (val <= max) {
-                                super.replace(fb, offset, length, text, attrs);
-                            } else {
-                                mostrarAlertaExcedido(max);
-                            }
-                        } catch (NumberFormatException e) {
-                            mostrarAlertaExcedido(max);
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text,
+                    javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                if (text == null) return;
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String proposedText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (proposedText.isEmpty()) {
+                    super.replace(fb, offset, length, text, attrs);
+                    return;
+                }
+                if (proposedText.matches("\\d+")) {
+                    try {
+                        int val = Integer.parseInt(proposedText);
+                        if (val <= max) {
+                            super.replace(fb, offset, length, text, attrs);
+                        } else {
+                            mostrarAlertaLimite(spinner, max);
                         }
+                    } catch (NumberFormatException e) {
+                        mostrarAlertaLimite(spinner, max);
                     }
                 }
-            };
+            }
+        };
 
-            txt.addPropertyChangeListener("formatter", evt -> {
-                ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
-            });
-
-            txt.addKeyListener(new java.awt.event.KeyAdapter() {
-                @Override
-                public void keyTyped(java.awt.event.KeyEvent e) {
-                    char c = e.getKeyChar();
-                    if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE
-                            && c != java.awt.event.KeyEvent.VK_DELETE) {
-                        e.consume();
-                    }
-                }
-            });
-
+        txt.addPropertyChangeListener("formatter", evt -> {
             ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
-        }
+        });
+        ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
+
+        txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyTyped(java.awt.event.KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c) && c != java.awt.event.KeyEvent.VK_BACK_SPACE
+                        && c != java.awt.event.KeyEvent.VK_DELETE) {
+                    e.consume();
+                }
+            }
+        });
+
+        // Validar también cuando el modelo cambia (flechas del spinner)
+        spinner.addChangeListener(e -> {
+            int val = ((Number) spinner.getValue()).intValue();
+            if (val > max) {
+                spinner.setValue(max);
+                mostrarAlertaLimite(spinner, max);
+            }
+        });
     }
 
-    private static void mostrarAlertaExcedido(int max) {
+    private static void mostrarAlertaLimite(JSpinner spinner, int maxValor) {
+        if (alertaMostrada) return;
+        alertaMostrada = true;
         Toolkit.getDefaultToolkit().beep();
         SwingUtilities.invokeLater(() -> {
             JOptionPane.showMessageDialog(
-                null,
-                "El marcador no puede ser mayor a " + max + " goles.",
-                "Límite excedido",
+                SwingUtilities.getWindowAncestor(spinner),
+                "El valor m\u00e1ximo permitido es " + maxValor + " goles.",
+                "L\u00edmite excedido",
                 JOptionPane.WARNING_MESSAGE
             );
+            alertaMostrada = false;
         });
     }
 
