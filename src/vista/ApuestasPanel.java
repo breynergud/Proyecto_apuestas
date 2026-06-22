@@ -22,6 +22,7 @@ public class ApuestasPanel extends JPanel {
     private JComboBox<String> comboApuestasGrupo;
     private JTable tablaApuestas;
     private DefaultTableModel modeloTablaApuestas;
+    private List<Apuesta> listaApuestasMostradas;
     private final String[] gruposLetras = {"A","B","C","D","E","F","G","H","I","J","K","L"};
 
     public ApuestasPanel(MenuPrincipal parent, Usuario usuarioLogueado, UsuarioControlador usuarioControlador, ApuestaControlador apuestaControlador) {
@@ -95,19 +96,14 @@ public class ApuestasPanel extends JPanel {
         scrollPane.getViewport().setBackground(UIStyleUtil.FONDO);
         add(scrollPane, BorderLayout.CENTER);
 
-        JButton btnActualizar = UIStyleUtil.btnRedondeado("Actualizar Pron\u00f3sticos", UIStyleUtil.VERDE_BTN, Color.WHITE);
-        btnActualizar.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                parent,
-                "Para actualizar tus pron\u00f3sticos debes ir al panel de Partidos.\n\u00bfDeseas ir ahora?",
-                "Actualizar Pron\u00f3sticos",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
-                parent.mostrarTab("pronosticos", 1);
-            }
-        });
+        JButton btnActualizar;
+        if (usuarioLogueado.esAdministrador()) {
+            btnActualizar = UIStyleUtil.btnRedondeado("Actualizar Tabla", UIStyleUtil.VERDE_BTN, Color.WHITE);
+            btnActualizar.addActionListener(e -> cargarDatosTablaApuestas());
+        } else {
+            btnActualizar = UIStyleUtil.btnRedondeado("Actualizar Pron\u00f3stico Seleccionado", UIStyleUtil.VERDE_BTN, Color.WHITE);
+            btnActualizar.addActionListener(e -> abrirDialogoActualizarApuesta());
+        }
         
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelBoton.setOpaque(false);
@@ -170,6 +166,7 @@ public class ApuestasPanel extends JPanel {
         } else {
             historial = apuestaControlador.obtenerApuestasPorUsuario(usuarioLogueado.getId(), grupo);
         }
+        this.listaApuestasMostradas = historial;
 
         for (Apuesta ap : historial) {
             Object[] fila = {
@@ -181,5 +178,110 @@ public class ApuestasPanel extends JPanel {
             };
             modeloTablaApuestas.addRow(fila);
         }
+    }
+
+    private void abrirDialogoActualizarApuesta() {
+        int filaSel = tablaApuestas.getSelectedRow();
+        if (filaSel < 0 || listaApuestasMostradas == null || filaSel >= listaApuestasMostradas.size()) {
+            JOptionPane.showMessageDialog(parent, "Por favor, seleccione un pron\u00f3stico de la lista para actualizar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Apuesta ap = listaApuestasMostradas.get(filaSel);
+        // Doble validación: solo permitir si la apuesta pertenece al usuario logueado
+        if (ap.getUsuarioId() != usuarioLogueado.getId()) {
+            JOptionPane.showMessageDialog(parent, "Solo puedes actualizar tus propios pron\u00f3sticos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Obtener datos del partido en tiempo real
+        modelo.Partido part = apuestaControlador.obtenerPartidoPorId(ap.getPartidoId());
+        if (part == null) {
+            JOptionPane.showMessageDialog(parent, "No se pudo obtener la informaci\u00f3n del partido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Validación: que el partido no haya comenzado/finalizado
+        if (part.isRegistrado() || UIStyleUtil.haPasadoFecha(part.getFecha())) {
+            JOptionPane.showMessageDialog(
+                parent,
+                "No puedes actualizar este pron\u00f3stico porque el partido ya ha comenzado o finalizado.",
+                "Partido no disponible",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Modal emergente de edición
+        JDialog dialog = new JDialog(parent, "Actualizar Pron\u00f3stico", true);
+        dialog.setSize(380, 240);
+        dialog.setLocationRelativeTo(parent);
+        dialog.setResizable(false);
+
+        JPanel content = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(UIStyleUtil.FONDO);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+            }
+        };
+        content.setLayout(new BorderLayout(15, 15));
+        content.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // Cabecera: nombres de los equipos
+        JLabel lblEquipos = new JLabel(part.getLocal() + " vs " + part.getVisitante(), SwingConstants.CENTER);
+        lblEquipos.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblEquipos.setForeground(UIStyleUtil.VERDE_OSCURO);
+        content.add(lblEquipos, BorderLayout.NORTH);
+
+        // Spinners de marcador
+        JPanel panelCuerpo = new JPanel(new GridLayout(1, 2, 16, 0));
+        panelCuerpo.setOpaque(false);
+
+        int golesL = ap.getGolesLocal();
+        int golesV = ap.getGolesVisitante();
+
+        JSpinner spinLocal = new JSpinner(new SpinnerNumberModel(golesL, 0, 15, 1));
+        JSpinner spinVisita = new JSpinner(new SpinnerNumberModel(golesV, 0, 15, 1));
+
+        UIStyleUtil.configurarSoloNumeros(spinLocal, 15);
+        UIStyleUtil.configurarSoloNumeros(spinVisita, 15);
+        UIStyleUtil.styleSpinner(spinLocal);
+        UIStyleUtil.styleSpinner(spinVisita);
+
+        panelCuerpo.add(UIStyleUtil.spinPanel("Goles Local", spinLocal));
+        panelCuerpo.add(UIStyleUtil.spinPanel("Goles Visita", spinVisita));
+        content.add(panelCuerpo, BorderLayout.CENTER);
+
+        // Botonera
+        JPanel panelBotonera = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        panelBotonera.setOpaque(false);
+
+        JButton btnGuardar = UIStyleUtil.btnRedondeado("Guardar", UIStyleUtil.VERDE_BTN, Color.WHITE);
+        btnGuardar.setPreferredSize(new Dimension(110, 36));
+        btnGuardar.addActionListener(e -> {
+            int nLocal = ((Number) spinLocal.getValue()).intValue();
+            int nVisita = ((Number) spinVisita.getValue()).intValue();
+
+            // Guardar apuesta
+            apuestaControlador.guardarApuestaUsuario(usuarioLogueado.getId(), part.getId(), nLocal, nVisita);
+            dialog.dispose();
+
+            JOptionPane.showMessageDialog(parent, "\u00a1Pron\u00f3stico actualizado con \u00e9xito!", "\u00c9xito", JOptionPane.INFORMATION_MESSAGE);
+            parent.refrescarTodo();
+        });
+
+        JButton btnCancelar = UIStyleUtil.btnRedondeado("Cancelar", new Color(130, 140, 130), Color.WHITE);
+        btnCancelar.setPreferredSize(new Dimension(110, 36));
+        btnCancelar.addActionListener(e -> dialog.dispose());
+
+        panelBotonera.add(btnGuardar);
+        panelBotonera.add(btnCancelar);
+        content.add(panelBotonera, BorderLayout.SOUTH);
+
+        dialog.setContentPane(content);
+        dialog.setVisible(true);
     }
 }

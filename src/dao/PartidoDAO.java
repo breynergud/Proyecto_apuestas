@@ -123,4 +123,38 @@ public class PartidoDAO {
             System.err.println("Error al actualizar marcador del partido: " + e.getMessage());
         }
     }
+
+    public Partido obtenerPorId(int partidoId) {
+        String sql = "SELECT p.id, p.grupo_id, e1.nombre AS local, e2.nombre AS visitante, p.fecha, p.goles_local, p.goles_visitante, p.registrado " +
+                     "FROM partidos p " +
+                     "JOIN equipos e1 ON p.local_id = e1.id " +
+                     "JOIN equipos e2 ON p.visitante_id = e2.id " +
+                     "WHERE p.id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, partidoId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int gLocal = rs.getInt("goles_local");
+                    Integer golesLocal = rs.wasNull() ? null : gLocal;
+                    int gVisita = rs.getInt("goles_visitante");
+                    Integer golesVisitante = rs.wasNull() ? null : gVisita;
+
+                    return new Partido(
+                        rs.getInt("id"),
+                        rs.getString("grupo_id"),
+                        rs.getString("local"),
+                        rs.getString("visitante"),
+                        rs.getString("fecha"),
+                        golesLocal,
+                        golesVisitante,
+                        rs.getBoolean("registrado")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener partido por ID: " + e.getMessage());
+        }
+        return null;
+    }
 }

@@ -26,6 +26,10 @@ public class ApuestaControlador {
         return partidoDAO.obtenerPorGrupo(grupo.trim().toUpperCase());
     }
 
+    public Partido obtenerPartidoPorId(int partidoId) {
+        return partidoDAO.obtenerPorId(partidoId);
+    }
+
     public List<String> obtenerEquiposDelGrupo(String grupo) {
         return partidoDAO.obtenerEquiposPorGrupo(grupo.trim().toUpperCase());
     }
