@@ -100,7 +100,7 @@ public class PronosticosPanel extends JPanel {
 
         int ok = JOptionPane.showConfirmDialog(
             parent,
-            "\u00bfHas revisado bien tus pron\u00f3sticos antes de enviar?\n(Si ingresaste alg\u00fan valor mayor al l\u00edmite, se habr\u00e1 ajustado autom\u00e1ticamente)",
+            "\u00bfHas revisado bien tus pron\u00f3sticos antes de enviar?",
             "Confirmar Pron\u00f3sticos",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE
