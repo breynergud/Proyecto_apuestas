@@ -79,57 +79,7 @@ public class UIStyleUtil {
         if (!(editor instanceof JSpinner.DefaultEditor)) return;
         JFormattedTextField txt = ((JSpinner.DefaultEditor) editor).getTextField();
 
-        javax.swing.text.DocumentFilter digitFilter = new javax.swing.text.DocumentFilter() {
-            @Override
-            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
-                    throws javax.swing.text.BadLocationException {
-                if (string == null) return;
-                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-                String proposedText = currentText.substring(0, offset) + string + currentText.substring(offset);
-                if (proposedText.matches("\\d+")) {
-                    try {
-                        int val = Integer.parseInt(proposedText);
-                        if (val <= max) {
-                            super.insertString(fb, offset, string, attr);
-                        } else {
-                            mostrarAlertaLimite(spinner, max);
-                        }
-                    } catch (NumberFormatException e) {
-                        mostrarAlertaLimite(spinner, max);
-                    }
-                }
-            }
-
-            @Override
-            public void replace(FilterBypass fb, int offset, int length, String text,
-                    javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
-                if (text == null) return;
-                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-                String proposedText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
-                if (proposedText.isEmpty()) {
-                    super.replace(fb, offset, length, text, attrs);
-                    return;
-                }
-                if (proposedText.matches("\\d+")) {
-                    try {
-                        int val = Integer.parseInt(proposedText);
-                        if (val <= max) {
-                            super.replace(fb, offset, length, text, attrs);
-                        } else {
-                            mostrarAlertaLimite(spinner, max);
-                        }
-                    } catch (NumberFormatException e) {
-                        mostrarAlertaLimite(spinner, max);
-                    }
-                }
-            }
-        };
-
-        txt.addPropertyChangeListener("formatter", evt -> {
-            ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
-        });
-        ((javax.swing.text.AbstractDocument) txt.getDocument()).setDocumentFilter(digitFilter);
-
+        // 1. Bloquear caracteres que no sean dígitos en el teclado
         txt.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyTyped(java.awt.event.KeyEvent e) {
@@ -141,7 +91,47 @@ public class UIStyleUtil {
             }
         });
 
-        // Validar también cuando el modelo cambia (flechas del spinner)
+        // 2. DocumentListener para validar en tiempo real mientras el usuario escribe
+        txt.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { verificar(); }
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { verificar(); }
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { verificar(); }
+
+            private void verificar() {
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        String texto = txt.getText().trim();
+                        if (!texto.isEmpty()) {
+                            int val = Integer.parseInt(texto);
+                            if (val > max) {
+                                mostrarAlertaLimite(spinner, max);
+                                txt.setText(String.valueOf(max));
+                                spinner.setValue(max);
+                            }
+                        }
+                    } catch (NumberFormatException ex) {
+                        txt.setText("0");
+                        spinner.setValue(0);
+                    }
+                });
+            }
+        });
+
+        // 3. FocusListener para validar cuando pierde el foco (por ejemplo, si queda vacío o es inválido)
+        txt.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                validarYFijar(spinner, txt, max);
+            }
+        });
+
+        // 4. ActionListener para validar al presionar Enter
+        txt.addActionListener(e -> validarYFijar(spinner, txt, max));
+
+        // 5. ChangeListener para las flechas del spinner
         spinner.addChangeListener(e -> {
             int val = ((Number) spinner.getValue()).intValue();
             if (val > max) {
@@ -149,6 +139,31 @@ public class UIStyleUtil {
                 mostrarAlertaLimite(spinner, max);
             }
         });
+    }
+
+    private static void validarYFijar(JSpinner spinner, JFormattedTextField txt, int max) {
+        try {
+            String texto = txt.getText().trim();
+            if (texto.isEmpty()) {
+                spinner.setValue(0);
+                txt.setText("0");
+            } else {
+                int valor = Integer.parseInt(texto);
+                if (valor > max) {
+                    mostrarAlertaLimite(spinner, max);
+                    spinner.setValue(max);
+                    txt.setText(String.valueOf(max));
+                } else if (valor < 0) {
+                    spinner.setValue(0);
+                    txt.setText("0");
+                } else {
+                    spinner.setValue(valor);
+                }
+            }
+        } catch (NumberFormatException ex) {
+            spinner.setValue(0);
+            txt.setText("0");
+        }
     }
 
     private static void mostrarAlertaLimite(JSpinner spinner, int maxValor) {

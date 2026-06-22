@@ -85,6 +85,30 @@ public class PronosticosPanel extends JPanel {
     }
 
     private void guardarApuestasGrupo(ActionEvent e) {
+        boolean hayNuevos = false;
+        for (PartidoApuestaPanel pPanel : listaPanelesApuestas) {
+            if (!pPanel.tieneApuestaPrevia() && !pPanel.isFechaPasada()) {
+                hayNuevos = true;
+                break;
+            }
+        }
+
+        if (!hayNuevos) {
+            JOptionPane.showMessageDialog(parent, "No hay nuevos pron\u00f3sticos para guardar en este grupo.", "Informaci\u00f3n", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int ok = JOptionPane.showConfirmDialog(
+            parent,
+            "\u00bfHas revisado bien tus pron\u00f3sticos antes de enviar?\n(Si ingresaste alg\u00fan valor mayor al l\u00edmite, se habr\u00e1 ajustado autom\u00e1ticamente)",
+            "Confirmar Pron\u00f3sticos",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+
         boolean guardadoAlguna = false;
         for (PartidoApuestaPanel pPanel : listaPanelesApuestas) {
             if (!pPanel.tieneApuestaPrevia() && !pPanel.isFechaPasada()) {
@@ -105,8 +129,6 @@ public class PronosticosPanel extends JPanel {
             JOptionPane.showMessageDialog(parent, "\u00a1Pron\u00f3sticos guardados con \u00e9xito!", "\u00c9xito", JOptionPane.INFORMATION_MESSAGE);
             parent.refrescarTodo();
             cargarPartidosParaApuestas();
-        } else {
-            JOptionPane.showMessageDialog(parent, "No hay nuevos pron\u00f3sticos para guardar en este grupo.", "Informaci\u00f3n", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
