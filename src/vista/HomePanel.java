@@ -47,47 +47,49 @@ public class HomePanel extends JPanel {
         colLeft.add(lblSub);
         colLeft.add(Box.createVerticalStrut(25));
 
-        // Stats cards row
-        JPanel rowStats = new JPanel(new GridLayout(1, 2, 16, 0));
-        rowStats.setOpaque(false);
-        rowStats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
-        rowStats.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (!usuarioLogueado.esAdministrador()) {
+            // Stats cards row
+            JPanel rowStats = new JPanel(new GridLayout(1, 2, 16, 0));
+            rowStats.setOpaque(false);
+            rowStats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
+            rowStats.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Card puntos
-        JPanel cardPuntos = UIStyleUtil.card();
-        cardPuntos.setLayout(new BoxLayout(cardPuntos, BoxLayout.Y_AXIS));
-        cardPuntos.setBorder(new EmptyBorder(16, 20, 16, 20));
-        JLabel lblPLabel = new JLabel("TUS PUNTOS");
-        lblPLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblPLabel.setForeground(UIStyleUtil.TEXTO_GRIS);
-        lblPuntos = new JLabel("0");
-        lblPuntos.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        lblPuntos.setForeground(UIStyleUtil.VERDE_OSCURO);
-        JLabel lblPChange = new JLabel("Puntos acumulados");
-        lblPChange.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblPChange.setForeground(UIStyleUtil.TEXTO_GRIS);
-        cardPuntos.add(lblPLabel); cardPuntos.add(Box.createVerticalStrut(4));
-        cardPuntos.add(lblPuntos); cardPuntos.add(lblPChange);
+            // Card puntos
+            JPanel cardPuntos = UIStyleUtil.card();
+            cardPuntos.setLayout(new BoxLayout(cardPuntos, BoxLayout.Y_AXIS));
+            cardPuntos.setBorder(new EmptyBorder(16, 20, 16, 20));
+            JLabel lblPLabel = new JLabel("TUS PUNTOS");
+            lblPLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            lblPLabel.setForeground(UIStyleUtil.TEXTO_GRIS);
+            lblPuntos = new JLabel("0");
+            lblPuntos.setFont(new Font("Segoe UI", Font.BOLD, 30));
+            lblPuntos.setForeground(UIStyleUtil.VERDE_OSCURO);
+            JLabel lblPChange = new JLabel("Puntos acumulados");
+            lblPChange.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            lblPChange.setForeground(UIStyleUtil.TEXTO_GRIS);
+            cardPuntos.add(lblPLabel); cardPuntos.add(Box.createVerticalStrut(4));
+            cardPuntos.add(lblPuntos); cardPuntos.add(lblPChange);
 
-        // Card rango
-        JPanel cardRango = UIStyleUtil.card();
-        cardRango.setLayout(new BoxLayout(cardRango, BoxLayout.Y_AXIS));
-        cardRango.setBorder(new EmptyBorder(16, 20, 16, 20));
-        JLabel lblRLabel = new JLabel("RANGO ACTUAL");
-        lblRLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblRLabel.setForeground(UIStyleUtil.TEXTO_GRIS);
-        lblRango = new JLabel("S/R");
-        lblRango.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        lblRango.setForeground(UIStyleUtil.VERDE_OSCURO);
-        JLabel lblRSub = new JLabel("Posición actual");
-        lblRSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblRSub.setForeground(UIStyleUtil.TEXTO_GRIS);
-        cardRango.add(lblRLabel); cardRango.add(Box.createVerticalStrut(4));
-        cardRango.add(lblRango); cardRango.add(lblRSub);
+            // Card rango
+            JPanel cardRango = UIStyleUtil.card();
+            cardRango.setLayout(new BoxLayout(cardRango, BoxLayout.Y_AXIS));
+            cardRango.setBorder(new EmptyBorder(16, 20, 16, 20));
+            JLabel lblRLabel = new JLabel("RANGO ACTUAL");
+            lblRLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            lblRLabel.setForeground(UIStyleUtil.TEXTO_GRIS);
+            lblRango = new JLabel("S/R");
+            lblRango.setFont(new Font("Segoe UI", Font.BOLD, 30));
+            lblRango.setForeground(UIStyleUtil.VERDE_OSCURO);
+            JLabel lblRSub = new JLabel("Posición actual");
+            lblRSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            lblRSub.setForeground(UIStyleUtil.TEXTO_GRIS);
+            cardRango.add(lblRLabel); cardRango.add(Box.createVerticalStrut(4));
+            cardRango.add(lblRango); cardRango.add(lblRSub);
 
-        rowStats.add(cardPuntos); rowStats.add(cardRango);
-        colLeft.add(rowStats);
-        colLeft.add(Box.createVerticalStrut(25));
+            rowStats.add(cardPuntos); rowStats.add(cardRango);
+            colLeft.add(rowStats);
+            colLeft.add(Box.createVerticalStrut(25));
+        }
 
         // Acciones Rápidas
         JLabel lblAcciones = new JLabel("Acciones Rápidas");
